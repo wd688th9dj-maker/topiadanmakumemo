@@ -27,7 +27,7 @@
 html, body {
   margin: 0;
   min-height: 100%;
-  background: var(--bg);
+  background: #000000;
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
 }
@@ -43,11 +43,13 @@ button, input, textarea {
   font: inherit;
 }
 
+
 /* ---------- 共通 ---------- */
 
 .screen {
   display: none;
   min-height: 100vh;
+  background: #000000;
 }
 
 .screen.active {
@@ -58,13 +60,17 @@ button, input, textarea {
   position: sticky;
   top: 0;
   z-index: 10;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   min-height: 58px;
   padding: 8px 16px;
+
   background: rgba(0,0,0,.92);
   backdrop-filter: blur(18px);
+
   border-bottom: 1px solid var(--border);
 }
 
@@ -96,16 +102,22 @@ button, input, textarea {
   position: fixed;
   right: 22px;
   bottom: calc(24px + env(safe-area-inset-bottom));
+
   width: 58px;
   height: 58px;
+
   border: 0;
   border-radius: 50%;
+
   background: var(--accent);
   color: #000;
+
   font-size: 34px;
   font-weight: 300;
+
   box-shadow: 0 6px 24px rgba(0,0,0,.45);
 }
+
 
 /* ---------- フォルダ ---------- */
 
@@ -113,7 +125,9 @@ button, input, textarea {
   display: flex;
   align-items: center;
   gap: 13px;
+
   padding: 17px 8px;
+
   border-bottom: 1px solid var(--border);
 }
 
@@ -143,30 +157,44 @@ button, input, textarea {
   font-size: 22px;
 }
 
+
 /* ---------- 弾幕一覧 ---------- */
 
 .search {
   width: 100%;
+
   border: 0;
   border-radius: 11px;
+
   padding: 11px 13px;
   margin-bottom: 14px;
+
   background: var(--panel2);
   color: white;
+
   font-size: 16px;
   outline: none;
 }
 
 .danmaku-card {
   position: relative;
+
   margin-bottom: 9px;
   padding: 16px 46px 16px 15px;
+
   border: 1px solid #282828;
   border-radius: 12px;
+
   background: var(--panel);
+
   overflow-wrap: anywhere;
   white-space: pre-wrap;
   line-height: 1.5;
+}
+
+.danmaku-card,
+.danmaku-card * {
+  font-size: 14px !important;
 }
 
 .danmaku-card:active {
@@ -177,47 +205,35 @@ button, input, textarea {
   position: absolute;
   right: 7px;
   top: 50%;
+
   transform: translateY(-50%);
+
   border: 0;
   background: none;
   color: #888;
+
   font-size: 22px;
   padding: 12px;
 }
 
+
 /* ---------- 編集 ---------- */
-
-.preview-label,
-.input-label {
-  margin: 8px 3px;
-  color: var(--sub);
-  font-size: 13px;
-}
-
-.preview {
-  min-height: 170px;
-  margin-bottom: 18px;
-  padding: 20px 15px;
-  border: 1px solid var(--border);
-  border-radius: 13px;
-  background: var(--bg);
-  color: white;
-  font-size: 25px;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  line-height: 1.5;
-}
 
 .editor {
   width: 100%;
   min-height: 240px;
   resize: vertical;
+
   border: 1px solid var(--border);
   border-radius: 13px;
+
   padding: 15px;
+
   background: var(--panel);
   color: white;
+
   outline: none;
+
   font-size: 16px;
   line-height: 1.5;
 }
@@ -226,24 +242,114 @@ button, input, textarea {
   border-color: #666;
 }
 
-.action-row {
+
+/* ---------- 編集 / プレビュー切替 ---------- */
+
+.mode-switch {
   display: flex;
-  gap: 10px;
-  margin-top: 14px;
+
+  width: 100%;
+  height: 42px;
+
+  margin-bottom: 18px;
+  padding: 3px;
+
+  background: var(--panel);
+
+  border: 1px solid var(--border);
+  border-radius: 14px;
 }
 
-.action {
+.mode-btn {
   flex: 1;
+
   border: 0;
   border-radius: 11px;
-  padding: 13px 10px;
-  background: var(--panel2);
-  color: white;
+
+  background: transparent;
+  color: var(--sub);
+
+  font-size: 15px;
+  font-weight: 600;
 }
 
-.action.danger {
-  color: var(--danger);
+.mode-btn.active {
+  background: var(--panel2);
+  color: var(--accent);
 }
+
+
+/* ---------- TOPIA風プレビュー ---------- */
+
+#previewMode {
+  position: relative;
+
+  width: 100%;
+  min-height: calc(100vh - 180px);
+
+  background-color: #000000;
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+
+/* コメント吹き出し */
+
+.preview {
+  position: fixed;
+
+  left: 20px;
+  bottom: 100px;
+
+  width: fit-content;
+  max-width: 88%;
+  min-height: 0;
+
+  margin: 0;
+  padding: 8px 12px;
+
+  border: 0;
+  border-radius: 16px;
+
+  background: rgba(30, 30, 30, 0.62);
+  color: white;
+
+  font-size: 16px;
+  line-height: 1.35;
+
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+
+  z-index: 100;
+}
+
+
+/* プレビュー内 背景変更ボタン */
+
+.preview-bg-button {
+  position: absolute;
+
+  top: 12px;
+  right: 12px;
+
+  z-index: 101;
+
+  border: 0;
+  border-radius: 12px;
+
+  padding: 8px 12px;
+
+  background: rgba(0,0,0,.55);
+  color: white;
+
+  font-size: 14px;
+}
+
 
 /* ---------- 設定 ---------- */
 
@@ -266,9 +372,12 @@ button, input, textarea {
 .color-picker {
   width: 48px;
   height: 48px;
+
   padding: 0;
+
   border: 2px solid #555;
   border-radius: 50%;
+
   overflow: hidden;
   background: none;
 }
@@ -276,12 +385,17 @@ button, input, textarea {
 .color-code {
   flex: 1;
   min-width: 0;
+
   border: 1px solid var(--border);
   border-radius: 10px;
+
   padding: 12px;
+
   background: var(--panel);
   color: white;
+
   outline: none;
+
   font-size: 16px;
 }
 
@@ -292,28 +406,41 @@ button, input, textarea {
 
 .remove-bg {
   margin-top: 12px;
+
   border: 0;
   border-radius: 10px;
+
   padding: 11px 14px;
+
   background: var(--panel2);
   color: white;
 }
+
 
 /* ---------- Toast ---------- */
 
 .toast {
   position: fixed;
+
   left: 50%;
   bottom: calc(100px + env(safe-area-inset-bottom));
+
   transform: translateX(-50%) translateY(20px);
+
   padding: 10px 17px;
+
   border-radius: 20px;
+
   background: #eeeeee;
   color: #111;
+
   font-size: 14px;
+
   opacity: 0;
   pointer-events: none;
+
   transition: .2s;
+
   z-index: 100;
 }
 
@@ -321,37 +448,20 @@ button, input, textarea {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
-  .mode-switch {
-  display: flex;
-  width: 100%;
-  height: 42px;
-  margin-bottom: 18px;
-  padding: 3px;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-}
 
-.mode-btn {
-  flex: 1;
-  border: 0;
-  border-radius: 11px;
-  background: transparent;
-  color: var(--sub);
-  font-size: 15px;
-  font-weight: 600;
-}
 
-.mode-btn.active {
-  background: var(--panel2);
-  color: var(--accent);
-}
-  .edit-menu {
+/* ---------- メニュー ---------- */
+
+.edit-menu {
   display: none;
+
   position: fixed;
   inset: 0;
+
   background: rgba(0, 0, 0, 0.45);
+
   z-index: 1000;
+
   align-items: flex-end;
   justify-content: center;
 }
@@ -362,82 +472,101 @@ button, input, textarea {
 
 .edit-menu-sheet {
   width: 100%;
+
   background: var(--panel);
+
   border-radius: 18px 18px 0 0;
+
   padding: 12px 16px 28px;
 }
 
 .edit-menu-sheet button {
   width: 100%;
+
   padding: 16px;
+
   border: 0;
   border-bottom: 1px solid var(--border);
+
   background: transparent;
   color: var(--text);
+
   font-size: 17px;
 }
 
 .edit-menu-sheet button.danger {
   color: #ff5a52;
 }
-  .danmaku-card,
-.danmaku-card * {
-  font-size: 14px !important;
-}
-/* TOPIA風プレビュー */
-.preview {
-  position: fixed;
-  left: 20px;
-  bottom: 100px;
-
-  width: fit-content;
-  max-width: 88%;
-  min-height: 0;
-
-  margin: 0;
-  padding: 8px 12px;
-
-  border: 0;
-  border-radius: 16px;
-  background: rgba(30, 30, 30, 0.62);
-  color: white;
-
-  font-size: 16px;
-  line-height: 1.35;
-
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-
-  z-index: 100;
-}
 
 </style>
 </head>
 
+
 <body>
 
+
 <!-- フォルダ一覧 -->
+
 <section id="foldersScreen" class="screen active">
 
   <header class="header">
-    <div class="header-title">フォルダ</div>
-    <button class="header-button" onclick="openSettings()">設定</button>
+
+    <div class="header-title">
+      フォルダ
+    </div>
+
+    <button
+      class="header-button"
+      onclick="openSettings()"
+    >
+      設定
+    </button>
+
   </header>
 
-  <main id="folderList" class="content"></main>
+  <main
+    id="folderList"
+    class="content"
+  ></main>
 
-  <button class="fab" onclick="addFolder()">＋</button>
+  <button
+    class="fab"
+    onclick="addFolder()"
+  >
+    ＋
+  </button>
+
 </section>
 
 
+
 <!-- 弾幕一覧 -->
+
 <section id="listScreen" class="screen">
 
   <header class="header">
-    <button class="header-button" onclick="showFolders()">‹ フォルダ</button>
-    <div id="currentFolderName" class="header-title"></div>
-    <button class="header-button" onclick="renameFolder()">•••</button>
+
+    <button
+      class="header-button"
+      onclick="showFolders()"
+    >
+      ‹ フォルダ
+    </button>
+
+    <div
+      id="currentFolderName"
+      class="header-title"
+    ></div>
+
+    <button
+      class="header-button"
+      onclick="renameFolder()"
+    >
+      •••
+    </button>
+
   </header>
+
 
   <main class="content">
 
@@ -453,71 +582,204 @@ button, input, textarea {
 
   </main>
 
-  <button class="fab" onclick="newDanmaku()">＋</button>
-  <div id="listMenu" class="edit-menu" onclick="closeListMenu()">
-  <div class="edit-menu-sheet" onclick="event.stopPropagation()">
-    <button onclick="copyListItem()">コピー</button>
-    <button class="danger" onclick="deleteListItem()">削除</button>
+
+  <button
+    class="fab"
+    onclick="newDanmaku()"
+  >
+    ＋
+  </button>
+
+
+  <div
+    id="listMenu"
+    class="edit-menu"
+    onclick="closeListMenu()"
+  >
+
+    <div
+      class="edit-menu-sheet"
+      onclick="event.stopPropagation()"
+    >
+
+      <button onclick="copyListItem()">
+        コピー
+      </button>
+
+      <button
+        class="danger"
+        onclick="deleteListItem()"
+      >
+        削除
+      </button>
+
+    </div>
+
   </div>
-</div>
+
 </section>
+
 
 
 <!-- 編集 -->
+
 <section id="editScreen" class="screen">
 
   <header class="header">
-    <button class="header-button" onclick="closeEditor()">‹ 戻る</button>
-    <div class="header-title">編集</div>
-    <button class="header-button" onclick="openEditMenu()">•••</button>
+
+    <button
+      class="header-button"
+      onclick="closeEditor()"
+    >
+      ‹ 戻る
+    </button>
+
+    <div class="header-title">
+      編集
+    </div>
+
+    <button
+      class="header-button"
+      onclick="openEditMenu()"
+    >
+      •••
+    </button>
+
   </header>
+
 
   <main class="content">
 
+
     <div class="mode-switch">
-  <button id="editModeBtn" class="mode-btn active" onclick="setEditMode('edit')">編集</button>
-  <button id="previewModeBtn" class="mode-btn" onclick="setEditMode('preview')">プレビュー</button>
-</div>
 
-<div id="editMode">
-  <textarea
-    id="editor"
-    class="editor"
-    placeholder="弾幕を入力"
-    oninput="editorChanged()"
-  ></textarea>
-</div>
+      <button
+        id="editModeBtn"
+        class="mode-btn active"
+        onclick="setEditMode('edit')"
+      >
+        編集
+      </button>
 
-<div id="previewMode" style="display:none;">
-  <div id="preview" class="preview"></div>
-</div>
-    
+      <button
+        id="previewModeBtn"
+        class="mode-btn"
+        onclick="setEditMode('preview')"
+      >
+        プレビュー
+      </button>
+
+    </div>
+
+
+    <div id="editMode">
+
+      <textarea
+        id="editor"
+        class="editor"
+        placeholder="弾幕を入力"
+        oninput="editorChanged()"
+      ></textarea>
+
+    </div>
+
+
+    <div
+      id="previewMode"
+      style="display:none;"
+    >
+
+      <button
+        class="preview-bg-button"
+        onclick="document.getElementById('previewBackgroundImage').click()"
+      >
+        背景変更
+      </button>
+
+
+      <input
+        id="previewBackgroundImage"
+        type="file"
+        accept="image/*"
+        onchange="imageChanged(event)"
+        hidden
+      >
+
+
+      <div
+        id="preview"
+        class="preview"
+      ></div>
+
+    </div>
+
 
   </main>
 
-<div id="editMenu" class="edit-menu" onclick="closeEditMenu()">
-  <div class="edit-menu-sheet" onclick="event.stopPropagation()">
-    <button onclick="copyCurrent(); closeEditMenu()">コピー</button>
-    <button class="danger" onclick="deleteCurrent(); closeEditMenu()">削除</button>
+
+  <div
+    id="editMenu"
+    class="edit-menu"
+    onclick="closeEditMenu()"
+  >
+
+    <div
+      class="edit-menu-sheet"
+      onclick="event.stopPropagation()"
+    >
+
+      <button
+        onclick="copyCurrent(); closeEditMenu()"
+      >
+        コピー
+      </button>
+
+      <button
+        class="danger"
+        onclick="deleteCurrent(); closeEditMenu()"
+      >
+        削除
+      </button>
+
+    </div>
+
   </div>
-</div>
 
 </section>
 
 
+
 <!-- 設定 -->
+
 <section id="settingsScreen" class="screen">
 
   <header class="header">
-    <button class="header-button" onclick="closeSettings()">‹ 戻る</button>
-    <div class="header-title">設定</div>
+
+    <button
+      class="header-button"
+      onclick="closeSettings()"
+    >
+      ‹ 戻る
+    </button>
+
+    <div class="header-title">
+      設定
+    </div>
+
     <div style="width:42px"></div>
+
   </header>
+
 
   <main class="content">
 
+
     <div class="setting">
-      <div class="setting-title">背景色</div>
+
+      <div class="setting-title">
+        背景色
+      </div>
+
 
       <div class="color-row">
 
@@ -529,6 +791,7 @@ button, input, textarea {
           oninput="pickerChanged()"
         >
 
+
         <input
           id="backgroundCode"
           class="color-code"
@@ -538,10 +801,17 @@ button, input, textarea {
         >
 
       </div>
+
     </div>
 
+
+
     <div class="setting">
-      <div class="setting-title">背景画像</div>
+
+      <div class="setting-title">
+        背景画像
+      </div>
+
 
       <input
         id="backgroundImage"
@@ -551,122 +821,241 @@ button, input, textarea {
         onchange="imageChanged(event)"
       >
 
-      <button class="remove-bg" onclick="removeBackgroundImage()">
+
+      <button
+        class="remove-bg"
+        onclick="removeBackgroundImage()"
+      >
         背景画像を削除
       </button>
+
     </div>
 
+
   </main>
+
 </section>
 
 
-<div id="toast" class="toast">コピーしました</div>
+
+<div
+  id="toast"
+  class="toast"
+>
+  コピーしました
+</div>
+
 
 
 <script>
+
+
+/* ------------------------------
+   編集 / プレビュー切替
+------------------------------ */
+
 function setEditMode(mode) {
-  const editMode = document.getElementById("editMode");
-  const previewMode = document.getElementById("previewMode");
-  const editBtn = document.getElementById("editModeBtn");
-  const previewBtn = document.getElementById("previewModeBtn");
+
+  const editMode =
+    document.getElementById("editMode");
+
+  const previewMode =
+    document.getElementById("previewMode");
+
+  const editBtn =
+    document.getElementById("editModeBtn");
+
+  const previewBtn =
+    document.getElementById("previewModeBtn");
+
 
   if (mode === "edit") {
+
     editMode.style.display = "block";
     previewMode.style.display = "none";
+
     editBtn.classList.add("active");
     previewBtn.classList.remove("active");
+
   } else {
+
     editMode.style.display = "none";
     previewMode.style.display = "block";
+
+    applyBackground();
+
     editBtn.classList.remove("active");
     previewBtn.classList.add("active");
   }
 }
-  function openEditMenu() {
-  document.getElementById("editMenu").classList.add("show");
+
+
+
+/* ------------------------------
+   編集メニュー
+------------------------------ */
+
+function openEditMenu() {
+
+  document
+    .getElementById("editMenu")
+    .classList.add("show");
 }
+
 
 function closeEditMenu() {
-  document.getElementById("editMenu").classList.remove("show");
+
+  document
+    .getElementById("editMenu")
+    .classList.remove("show");
 }
-  let listMenuItemId = null;
+
+
+
+/* ------------------------------
+   一覧メニュー
+------------------------------ */
+
+let listMenuItemId = null;
+
 
 function openListMenu(itemId) {
+
   listMenuItemId = itemId;
-  document.getElementById("listMenu").classList.add("show");
+
+  document
+    .getElementById("listMenu")
+    .classList.add("show");
 }
 
+
 function closeListMenu() {
-  document.getElementById("listMenu").classList.remove("show");
+
+  document
+    .getElementById("listMenu")
+    .classList.remove("show");
+
   listMenuItemId = null;
 }
 
+
 function copyListItem() {
-  const folder = getCurrentFolder();
+
+  const folder =
+    getCurrentFolder();
+
   if (!folder) return;
 
-  const item = folder.items.find(i => i.id === listMenuItemId);
+
+  const item =
+    folder.items.find(
+      i => i.id === listMenuItemId
+    );
+
   if (!item) return;
 
+
   copyText(item.text);
+
   closeListMenu();
 }
+
 
 function deleteListItem() {
-  const folder = getCurrentFolder();
+
+  const folder =
+    getCurrentFolder();
+
   if (!folder) return;
 
-  folder.items = folder.items.filter(i => i.id !== listMenuItemId);
+
+  folder.items =
+    folder.items.filter(
+      i => i.id !== listMenuItemId
+    );
+
 
   saveData();
+
   renderDanmaku();
+
   closeListMenu();
 }
+
+
+
 /* ------------------------------
    データ
 ------------------------------ */
 
-const STORAGE_KEY = "danmakuMemoData_v1";
+const STORAGE_KEY =
+  "danmakuMemoData_v1";
 
-let data = loadData();
+
+let data =
+  loadData();
+
 
 let currentFolderId = null;
+
 let currentDanmakuId = null;
-let settingsReturnScreen = "foldersScreen";
+
+let settingsReturnScreen =
+  "foldersScreen";
+
 
 
 function defaultData() {
+
   return {
+
     folders: [
+
       {
         id: makeId(),
         name: "弾幕",
         items: []
       }
+
     ],
 
     settings: {
-      backgroundColor: "#000000",
-      backgroundImage: ""
+
+      backgroundColor:
+        "#000000",
+
+      backgroundImage:
+        ""
+
     }
+
   };
 }
+
 
 
 function loadData() {
 
   try {
 
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved =
+      localStorage.getItem(
+        STORAGE_KEY
+      );
+
 
     if (saved) {
+
       return JSON.parse(saved);
+
     }
 
   } catch (e) {}
 
+
   return defaultData();
 }
+
 
 
 function saveData() {
@@ -680,10 +1069,18 @@ function saveData() {
 }
 
 
+
 function makeId() {
-  return Date.now().toString(36) +
-         Math.random().toString(36).slice(2);
+
+  return (
+    Date.now().toString(36)
+    +
+    Math.random()
+      .toString(36)
+      .slice(2)
+  );
 }
+
 
 
 /* ------------------------------
@@ -695,8 +1092,13 @@ function showScreen(id) {
   document
     .querySelectorAll(".screen")
     .forEach(screen => {
-      screen.classList.remove("active");
+
+      screen.classList.remove(
+        "active"
+      );
+
     });
+
 
   document
     .getElementById(id)
@@ -704,13 +1106,18 @@ function showScreen(id) {
 }
 
 
+
 function showFolders() {
 
   currentFolderId = null;
 
   renderFolders();
-  showScreen("foldersScreen");
+
+  showScreen(
+    "foldersScreen"
+  );
 }
+
 
 
 /* ------------------------------
@@ -719,9 +1126,14 @@ function showFolders() {
 
 function renderFolders() {
 
-  const list = document.getElementById("folderList");
+  const list =
+    document.getElementById(
+      "folderList"
+    );
+
 
   list.innerHTML = "";
+
 
   if (!data.folders.length) {
 
@@ -734,92 +1146,169 @@ function renderFolders() {
 
   data.folders.forEach(folder => {
 
-    const row = document.createElement("div");
+    const row =
+      document.createElement(
+        "div"
+      );
 
-    row.className = "folder";
+
+    row.className =
+      "folder";
+
 
     row.innerHTML = `
-      <div class="folder-icon">▱</div>
+
+      <div class="folder-icon">
+        ▱
+      </div>
 
       <div class="folder-info">
+
         <div class="folder-name"></div>
+
         <div class="folder-count">
           ${folder.items.length}件
         </div>
+
       </div>
 
-      <div class="chevron">›</div>
+      <div class="chevron">
+        ›
+      </div>
+
     `;
 
-    row.querySelector(".folder-name").textContent =
-      folder.name;
 
-    row.onclick = () => openFolder(folder.id);
+    row
+      .querySelector(
+        ".folder-name"
+      )
+      .textContent =
+        folder.name;
+
+
+    row.onclick =
+      () => openFolder(
+        folder.id
+      );
+
 
     list.appendChild(row);
+
   });
 }
+
 
 
 function addFolder() {
 
-  const name = prompt("フォルダ名");
+  const name =
+    prompt("フォルダ名");
 
-  if (!name || !name.trim()) return;
+
+  if (
+    !name ||
+    !name.trim()
+  ) return;
+
 
   data.folders.push({
+
     id: makeId(),
-    name: name.trim(),
+
+    name:
+      name.trim(),
+
     items: []
+
   });
 
+
   saveData();
+
   renderFolders();
 }
+
 
 
 function openFolder(id) {
 
   currentFolderId = id;
 
-  const folder = getCurrentFolder();
+
+  const folder =
+    getCurrentFolder();
+
 
   document
-    .getElementById("currentFolderName")
-    .textContent = folder.name;
+    .getElementById(
+      "currentFolderName"
+    )
+    .textContent =
+      folder.name;
 
-  document.getElementById("search").value = "";
+
+  document
+    .getElementById(
+      "search"
+    )
+    .value = "";
+
 
   renderDanmaku();
 
-  showScreen("listScreen");
+
+  showScreen(
+    "listScreen"
+  );
 }
+
 
 
 function renameFolder() {
 
-  const folder = getCurrentFolder();
+  const folder =
+    getCurrentFolder();
+
 
   if (!folder) return;
 
-  const action = prompt(
-    "フォルダ名を変更できます。\n削除する場合は「削除」と入力してください。",
-    folder.name
-  );
 
-  if (action === null) return;
+  const action =
+    prompt(
+
+      "フォルダ名を変更できます。\n削除する場合は「削除」と入力してください。",
+
+      folder.name
+
+    );
+
+
+  if (action === null)
+    return;
 
 
   if (action === "削除") {
 
-    if (!confirm("このフォルダと中の弾幕を削除しますか？")) {
+    if (
+      !confirm(
+        "このフォルダと中の弾幕を削除しますか？"
+      )
+    ) {
+
       return;
+
     }
 
+
     data.folders =
-      data.folders.filter(f => f.id !== folder.id);
+      data.folders.filter(
+        f => f.id !== folder.id
+      );
+
 
     saveData();
+
     showFolders();
 
     return;
@@ -828,15 +1317,23 @@ function renameFolder() {
 
   if (action.trim()) {
 
-    folder.name = action.trim();
+    folder.name =
+      action.trim();
+
 
     saveData();
 
+
     document
-      .getElementById("currentFolderName")
-      .textContent = folder.name;
+      .getElementById(
+        "currentFolderName"
+      )
+      .textContent =
+        folder.name;
+
   }
 }
+
 
 
 function getCurrentFolder() {
@@ -847,31 +1344,45 @@ function getCurrentFolder() {
 }
 
 
+
 /* ------------------------------
    弾幕
 ------------------------------ */
 
 function renderDanmaku() {
 
-  const folder = getCurrentFolder();
+  const folder =
+    getCurrentFolder();
+
 
   if (!folder) return;
 
+
   const container =
-    document.getElementById("danmakuList");
+    document.getElementById(
+      "danmakuList"
+    );
+
 
   const query =
     document
-      .getElementById("search")
+      .getElementById(
+        "search"
+      )
       .value
       .toLowerCase();
+
 
   container.innerHTML = "";
 
 
-  const items = folder.items.filter(item =>
-    item.text.toLowerCase().includes(query)
-  );
+  const items =
+    folder.items.filter(
+      item =>
+        item.text
+          .toLowerCase()
+          .includes(query)
+    );
 
 
   if (!items.length) {
@@ -886,160 +1397,299 @@ function renderDanmaku() {
   items.forEach(item => {
 
     const card =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
-    card.className = "danmaku-card";
+
+    card.className =
+      "danmaku-card";
+
 
     const content =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
+
 
     content.innerHTML =
-      parseDanmaku(item.text);
+      parseDanmaku(
+        item.text
+      );
 
-    card.appendChild(content);
+
+    card.appendChild(
+      content
+    );
 
 
     const more =
-      document.createElement("button");
-
-    more.className = "more";
-    more.textContent = "•••";
-
-    more.onclick = event => {
-  event.stopPropagation();
-  openListMenu(item.id);
-};
+      document.createElement(
+        "button"
+      );
 
 
-    card.appendChild(more);
+    more.className =
+      "more";
 
 
-    card.onclick = () =>
-  editDanmaku(item.id);
+    more.textContent =
+      "•••";
 
 
-    container.appendChild(card);
+    more.onclick =
+      event => {
+
+        event.stopPropagation();
+
+        openListMenu(
+          item.id
+        );
+
+      };
+
+
+    card.appendChild(
+      more
+    );
+
+
+    card.onclick =
+      () =>
+        editDanmaku(
+          item.id
+        );
+
+
+    container.appendChild(
+      card
+    );
+
   });
+
 }
+
 
 
 function newDanmaku() {
 
-  const folder = getCurrentFolder();
+  const folder =
+    getCurrentFolder();
+
 
   if (!folder) return;
 
+
   const item = {
+
     id: makeId(),
+
     text: ""
+
   };
 
-  folder.items.push(item);
 
-  currentDanmakuId = item.id;
+  folder.items.push(
+    item
+  );
+
+
+  currentDanmakuId =
+    item.id;
+
 
   saveData();
 
-  openEditor(item);
+
+  openEditor(
+    item
+  );
 }
+
 
 
 function editDanmaku(id) {
 
-  const folder = getCurrentFolder();
+  const folder =
+    getCurrentFolder();
+
 
   const item =
-    folder.items.find(i => i.id === id);
+    folder.items.find(
+      i => i.id === id
+    );
+
 
   if (!item) return;
 
-  currentDanmakuId = id;
 
-  openEditor(item);
+  currentDanmakuId =
+    id;
+
+
+  openEditor(
+    item
+  );
 }
+
 
 
 function openEditor(item) {
 
-  document.getElementById("editor").value =
-    item.text;
+  document
+    .getElementById(
+      "editor"
+    )
+    .value =
+      item.text;
+
 
   updatePreview();
 
-  showScreen("editScreen");
+
+  showScreen(
+    "editScreen"
+  );
+
+
+  setEditMode(
+    "edit"
+  );
+
 
   setTimeout(() => {
-    document.getElementById("editor").focus();
+
+    document
+      .getElementById(
+        "editor"
+      )
+      .focus();
+
   }, 100);
+
 }
+
 
 
 function editorChanged() {
 
-  const folder = getCurrentFolder();
+  const folder =
+    getCurrentFolder();
+
 
   if (!folder) return;
 
+
   const item =
     folder.items.find(
-      i => i.id === currentDanmakuId
+
+      i =>
+        i.id ===
+        currentDanmakuId
+
     );
+
 
   if (!item) return;
 
+
   item.text =
-    document.getElementById("editor").value;
+    document
+      .getElementById(
+        "editor"
+      )
+      .value;
+
 
   saveData();
+
 
   updatePreview();
 }
 
 
+
 function closeEditor() {
 
-  const folder = getCurrentFolder();
+  const folder =
+    getCurrentFolder();
+
 
   if (folder) {
 
     folder.items =
       folder.items.filter(
-        item => item.text.trim() !== ""
+
+        item =>
+          item.text.trim()
+          !== ""
+
       );
 
+
     saveData();
+
     renderDanmaku();
+
   }
 
-  currentDanmakuId = null;
 
-  showScreen("listScreen");
+  currentDanmakuId =
+    null;
+
+
+  showScreen(
+    "listScreen"
+  );
 }
+
 
 
 function deleteCurrent() {
 
-  const folder = getCurrentFolder();
+  const folder =
+    getCurrentFolder();
+
 
   if (!folder) return;
 
-  if (!confirm("この弾幕を削除しますか？")) {
+
+  if (
+    !confirm(
+      "この弾幕を削除しますか？"
+    )
+  ) {
+
     return;
+
   }
+
 
   folder.items =
     folder.items.filter(
-      item => item.id !== currentDanmakuId
+
+      item =>
+        item.id !==
+        currentDanmakuId
+
     );
+
 
   saveData();
 
-  currentDanmakuId = null;
+
+  currentDanmakuId =
+    null;
+
 
   renderDanmaku();
 
-  showScreen("listScreen");
+
+  showScreen(
+    "listScreen"
+  );
 }
+
 
 
 /* ------------------------------
@@ -1049,10 +1699,23 @@ function deleteCurrent() {
 function escapeHTML(text) {
 
   return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+
+    .replace(
+      /</g,
+      "&lt;"
+    )
+
+    .replace(
+      />/g,
+      "&gt;"
+    );
 }
+
 
 
 function validColor(color) {
@@ -1062,65 +1725,128 @@ function validColor(color) {
 }
 
 
+
 function parseDanmaku(source) {
 
-  let text = escapeHTML(source);
+  let text =
+    escapeHTML(
+      source
+    );
 
 
   /* color */
 
-  text = text.replace(
-    /&lt;color=(#[0-9a-fA-F]{3,8})&gt;([\s\S]*?)&lt;\/color&gt;/gi,
-    (match, color, content) => {
+  text =
+    text.replace(
 
-      if (!validColor(color)) {
-        return content;
+      /&lt;color=(#[0-9a-fA-F]{3,8})&gt;([\s\S]*?)&lt;\/color&gt;/gi,
+
+      (
+        match,
+        color,
+        content
+      ) => {
+
+
+        if (
+          !validColor(color)
+        ) {
+
+          return content;
+
+        }
+
+
+        return `<span style="color:${color}">${content}</span>`;
+
       }
 
-      return `<span style="color:${color}">${content}</span>`;
-    }
-  );
+    );
 
 
   /* size */
 
-  text = text.replace(
-    /&lt;size=(\d+(?:\.\d+)?)&gt;([\s\S]*?)&lt;\/size&gt;/gi,
-    (match, size, content) => {
+  text =
+    text.replace(
 
-      const number =
-        Math.max(1, Math.min(Number(size), 100));
+      /&lt;size=(\d+(?:\.\d+)?)&gt;([\s\S]*?)&lt;\/size&gt;/gi,
 
-      return `<span style="font-size:${number * 0.8}px">${content}</span>`;
-    }
-  );
+      (
+        match,
+        size,
+        content
+      ) => {
+
+
+        const number =
+          Math.max(
+
+            1,
+
+            Math.min(
+              Number(size),
+              100
+            )
+
+          );
+
+
+        return `<span style="font-size:${number * 0.8}px">${content}</span>`;
+
+      }
+
+    );
 
 
   /* italic */
 
-  text = text.replace(
-    /&lt;i&gt;([\s\S]*?)&lt;\/i&gt;/gi,
-    "<i>$1</i>"
-  );
+  text =
+    text.replace(
+
+      /&lt;i&gt;([\s\S]*?)&lt;\/i&gt;/gi,
+
+      "<i>$1</i>"
+
+    );
 
 
   /* 改行 */
 
-  text = text.replace(/\\ua|\r\n|\r|\n/g, "<br>");
+  text =
+    text.replace(
+
+      /\\ua|\r\n|\r|\n/g,
+
+      "<br>"
+
+    );
 
 
   return text;
 }
 
 
+
 function updatePreview() {
 
   const text =
-    document.getElementById("editor").value;
+    document
+      .getElementById(
+        "editor"
+      )
+      .value;
 
-  document.getElementById("preview").innerHTML =
-    parseDanmaku(text);
+
+  document
+    .getElementById(
+      "preview"
+    )
+    .innerHTML =
+      parseDanmaku(
+        text
+      );
 }
+
 
 
 /* ------------------------------
@@ -1129,55 +1855,97 @@ function updatePreview() {
 
 function prepareCopy(text) {
 
-  /*
-    既存の \\ua を一度改行扱いにしてから
-    実際の改行を \\ua に変換。
-    二重化を防ぐ。
-  */
-
   return text
-    .replace(/\\ua\r?\n/g, "\n")
-    .replace(/\r\n|\r|\n/g, "\\ua");
+
+    .replace(
+      /\\ua\r?\n/g,
+      "\n"
+    )
+
+    .replace(
+      /\r\n|\r|\n/g,
+      "\\ua"
+    );
 }
+
 
 
 async function copyText(text) {
 
-  const output = prepareCopy(text);
+  const output =
+    prepareCopy(
+      text
+    );
+
 
   try {
 
-    await navigator.clipboard.writeText(output);
+    await navigator
+      .clipboard
+      .writeText(
+        output
+      );
 
-    showToast("コピーしました");
+
+    showToast(
+      "コピーしました"
+    );
 
   } catch (e) {
 
+
     const area =
-      document.createElement("textarea");
+      document.createElement(
+        "textarea"
+      );
 
-    area.value = output;
 
-    document.body.appendChild(area);
+    area.value =
+      output;
+
+
+    document.body
+      .appendChild(
+        area
+      );
+
 
     area.select();
 
-    document.execCommand("copy");
+
+    document.execCommand(
+      "copy"
+    );
+
 
     area.remove();
 
-    showToast("コピーしました");
+
+    showToast(
+      "コピーしました"
+    );
+
   }
+
 }
+
 
 
 function copyCurrent() {
 
   const text =
-    document.getElementById("editor").value;
+    document
+      .getElementById(
+        "editor"
+      )
+      .value;
 
-  copyText(text);
+
+  copyText(
+    text
+  );
 }
+
 
 
 /* ------------------------------
@@ -1186,127 +1954,267 @@ function copyCurrent() {
 
 function openSettings() {
 
-  settingsReturnScreen = "foldersScreen";
+  settingsReturnScreen =
+    "foldersScreen";
+
 
   const color =
-    data.settings.backgroundColor || "#000000";
+    data.settings
+      .backgroundColor
+    ||
+    "#000000";
+
 
   document
-    .getElementById("backgroundCode")
-    .value = color;
+    .getElementById(
+      "backgroundCode"
+    )
+    .value =
+      color;
 
-  if (/^#[0-9a-fA-F]{6}$/.test(color)) {
+
+  if (
+    /^#[0-9a-fA-F]{6}$/
+      .test(color)
+  ) {
 
     document
-      .getElementById("backgroundPicker")
-      .value = color;
+      .getElementById(
+        "backgroundPicker"
+      )
+      .value =
+        color;
+
   }
 
-  showScreen("settingsScreen");
+
+  showScreen(
+    "settingsScreen"
+  );
 }
+
 
 
 function closeSettings() {
 
-  showScreen(settingsReturnScreen);
+  showScreen(
+    settingsReturnScreen
+  );
 }
+
 
 
 function pickerChanged() {
 
   const color =
     document
-      .getElementById("backgroundPicker")
+      .getElementById(
+        "backgroundPicker"
+      )
       .value;
 
-  document
-    .getElementById("backgroundCode")
-    .value = color;
 
-  data.settings.backgroundColor = color;
+  document
+    .getElementById(
+      "backgroundCode"
+    )
+    .value =
+      color;
+
+
+  data.settings
+    .backgroundColor =
+      color;
+
 
   saveData();
 }
+
 
 
 function codeChanged() {
 
   const input =
-    document.getElementById("backgroundCode");
+    document
+      .getElementById(
+        "backgroundCode"
+      );
 
-  const color = input.value.trim();
 
-  if (!/^#[0-9a-fA-F]{6}$/.test(color)) {
+  const color =
+    input.value.trim();
+
+
+  if (
+    !/^#[0-9a-fA-F]{6}$/
+      .test(color)
+  ) {
+
     return;
+
   }
 
-  data.settings.backgroundColor = color;
+
+  data.settings
+    .backgroundColor =
+      color;
+
 
   document
-    .getElementById("backgroundPicker")
-    .value = color;
+    .getElementById(
+      "backgroundPicker"
+    )
+    .value =
+      color;
+
 
   saveData();
 }
+
 
 
 function imageChanged(event) {
 
-  const file = event.target.files[0];
+  const file =
+    event.target.files[0];
 
-  if (!file) return;
 
-  const reader = new FileReader();
+  if (!file)
+    return;
 
-  reader.onload = e => {
 
-    data.settings.backgroundImage =
-      e.target.result;
+  const reader =
+    new FileReader();
 
-    saveData();
-    applyBackground();
-  };
 
-  reader.readAsDataURL(file);
+  reader.onload =
+    e => {
+
+
+      data.settings
+        .backgroundImage =
+          e.target.result;
+
+
+      saveData();
+
+    };
+
+
+  reader.readAsDataURL(
+    file
+  );
 }
+
 
 
 function removeBackgroundImage() {
 
-  data.settings.backgroundImage = "";
+  data.settings
+    .backgroundImage =
+      "";
 
-  document
-    .getElementById("backgroundImage")
-    .value = "";
+
+  const settingsInput =
+    document.getElementById(
+      "backgroundImage"
+    );
+
+
+  const previewInput =
+    document.getElementById(
+      "previewBackgroundImage"
+    );
+
+
+  if (settingsInput) {
+
+    settingsInput.value = "";
+
+  }
+
+
+  if (previewInput) {
+
+    previewInput.value = "";
+
+  }
+
 
   saveData();
-applyBackground();
 }
+
 
 
 function applyBackground() {
+
   const color =
-    data.settings.backgroundColor || "#000000";
+    data.settings
+      .backgroundColor
+    ||
+    "#000000";
+
 
   const previewMode =
-    document.getElementById("previewMode");
+    document.getElementById(
+      "previewMode"
+    );
 
-  if (!previewMode) return;
 
-  previewMode.style.backgroundColor = color;
+  if (!previewMode)
+    return;
 
-  if (data.settings.backgroundImage) {
-    previewMode.style.backgroundImage =
-      `linear-gradient(rgba(0,0,0,.25), rgba(0,0,0,.25)),
-       url("${data.settings.backgroundImage}")`;
 
-    previewMode.style.backgroundSize = "cover";
-    previewMode.style.backgroundPosition = "center";
-    previewMode.style.backgroundRepeat = "no-repeat";
+  previewMode
+    .style
+    .backgroundColor =
+      color;
+
+
+  if (
+    data.settings
+      .backgroundImage
+  ) {
+
+    previewMode
+      .style
+      .backgroundImage =
+
+      `linear-gradient(
+        rgba(0,0,0,.25),
+        rgba(0,0,0,.25)
+      ),
+      url("${data.settings.backgroundImage}")`;
+
+
+    previewMode
+      .style
+      .backgroundSize =
+        "cover";
+
+
+    previewMode
+      .style
+      .backgroundPosition =
+        "center";
+
+
+    previewMode
+      .style
+      .backgroundRepeat =
+        "no-repeat";
+
   } else {
-    previewMode.style.backgroundImage = "none";
+
+    previewMode
+      .style
+      .backgroundImage =
+        "none";
+
   }
+
 }
+
 
 
 /* ------------------------------
@@ -1316,21 +2224,48 @@ function applyBackground() {
 let toastTimer;
 
 
+
 function showToast(message) {
 
   const toast =
-    document.getElementById("toast");
+    document
+      .getElementById(
+        "toast"
+      );
 
-  toast.textContent = message;
 
-  toast.classList.add("show");
+  toast.textContent =
+    message;
 
-  clearTimeout(toastTimer);
 
-  toastTimer = setTimeout(() => {
-    toast.classList.remove("show");
-  }, 1300);
+  toast.classList.add(
+    "show"
+  );
+
+
+  clearTimeout(
+    toastTimer
+  );
+
+
+  toastTimer =
+    setTimeout(
+      () => {
+
+        toast
+          .classList
+          .remove(
+            "show"
+          );
+
+      },
+
+      1300
+
+    );
+
 }
+
 
 
 /* ------------------------------
@@ -1338,7 +2273,9 @@ function showToast(message) {
 ------------------------------ */
 
 applyBackground();
+
 renderFolders();
+
 
 </script>
 
