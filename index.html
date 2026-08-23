@@ -20,7 +20,7 @@
   --border: #333333;
   --text: #ffffff;
   --sub: #aaaaaa;
-  --accent: #8097FF;
+  --accent: #4370BD;
   --danger: #ff453a;
 }
 
@@ -202,6 +202,7 @@ button, input, textarea {
   border-radius: 13px;
   background: var(--bg);
   color: white;
+  font-size: 25px;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   line-height: 1.5;
@@ -320,6 +321,31 @@ button, input, textarea {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
+  .mode-switch {
+  display: flex;
+  width: 100%;
+  height: 42px;
+  margin-bottom: 18px;
+  padding: 3px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.mode-btn {
+  flex: 1;
+  border: 0;
+  border-radius: 11px;
+  background: transparent;
+  color: var(--sub);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.mode-btn.active {
+  background: var(--panel2);
+  color: var(--accent);
+}
 </style>
 </head>
 
@@ -377,18 +403,23 @@ button, input, textarea {
 
   <main class="content">
 
-    <div class="preview-label">プレビュー</div>
-    <div id="preview" class="preview"></div>
+    <div class="mode-switch">
+  <button id="editModeBtn" class="mode-btn active" onclick="setEditMode('edit')">編集</button>
+  <button id="previewModeBtn" class="mode-btn" onclick="setEditMode('preview')">プレビュー</button>
+</div>
 
-    <div class="input-label">入力</div>
+<div id="editMode">
+  <textarea
+    id="editor"
+    class="editor"
+    placeholder="弾幕を入力"
+    oninput="editorChanged()"
+  ></textarea>
+</div>
 
-    <textarea
-      id="editor"
-      class="editor"
-      placeholder="弾幕を入力"
-      oninput="editorChanged()"
-    ></textarea>
-
+<div id="previewMode" style="display:none;">
+  <div id="preview" class="preview"></div>
+</div>
     <div class="action-row">
       <button class="action" onclick="copyCurrent()">コピー</button>
       <button class="action danger" onclick="deleteCurrent()">削除</button>
@@ -457,7 +488,24 @@ button, input, textarea {
 
 
 <script>
+function setEditMode(mode) {
+  const editMode = document.getElementById("editMode");
+  const previewMode = document.getElementById("previewMode");
+  const editBtn = document.getElementById("editModeBtn");
+  const previewBtn = document.getElementById("previewModeBtn");
 
+  if (mode === "edit") {
+    editMode.style.display = "block";
+    previewMode.style.display = "none";
+    editBtn.classList.add("active");
+    previewBtn.classList.remove("active");
+  } else {
+    editMode.style.display = "none";
+    previewMode.style.display = "block";
+    editBtn.classList.remove("active");
+    previewBtn.classList.add("active");
+  }
+}
 /* ------------------------------
    データ
 ------------------------------ */
@@ -742,18 +790,34 @@ function renderDanmaku() {
     more.textContent = "•••";
 
     more.onclick = event => {
+  event.stopPropagation();
 
-      event.stopPropagation();
+  const action = prompt(
+    "操作を選んでください\n1：コピー\n2：削除"
+  );
 
-      editDanmaku(item.id);
-    };
+  if (action === "1") {
+    copyText(item.text);
+  }
+
+  if (action === "2") {
+    if (!confirm("この弾幕を削除しますか？")) return;
+
+    folder.items = folder.items.filter(
+      i => i.id !== item.id
+    );
+
+    saveData();
+    renderDanmaku();
+  }
+};
 
 
     card.appendChild(more);
 
 
     card.onclick = () =>
-      copyText(item.text);
+  editDanmaku(item.id);
 
 
     container.appendChild(card);
@@ -944,7 +1008,7 @@ function parseDanmaku(source) {
 
   /* 改行 */
 
-  text = text.replace(/\r?\n/g, "<br>");
+  text = text.replace(/\\ua|\r\n|\r|\n/g, "<br>");
 
 
   return text;
