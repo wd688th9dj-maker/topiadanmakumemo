@@ -322,29 +322,26 @@ textarea {
   background-repeat: no-repeat;
 
   border-radius: 12px;
-
   overflow: hidden;
 }
 
 
-/* TOPIA風コメント */
+/* TOPIA風コメント
+   背景とは別で固定表示
+*/
 
 .preview {
-  position: relative;
+  position: fixed;
 
-  left: auto;
-  bottom: auto;
+  left: 14px;
+  bottom: 100px;
 
   width: fit-content;
   max-width: calc(100% - 28px);
 
   min-height: 0;
 
-  margin:
-    calc(100% * 1.72)
-    14px
-    90px;
-
+  margin: 0;
   padding: 6px 10px;
 
   border: 0;
