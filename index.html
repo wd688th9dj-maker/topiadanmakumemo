@@ -330,17 +330,21 @@ textarea {
 /* TOPIA風コメント */
 
 .preview {
-  position: absolute;
+  position: relative;
 
-  left: 14px;
-  bottom: 90px;
+  left: auto;
+  bottom: auto;
 
   width: fit-content;
   max-width: calc(100% - 28px);
 
   min-height: 0;
 
-  margin: 0;
+  margin:
+    calc(100% * 1.72)
+    14px
+    90px;
+
   padding: 6px 10px;
 
   border: 0;
@@ -777,8 +781,6 @@ textarea {
   </main>
 
 
-  <!-- 編集メニュー -->
-
   <div
     id="editMenu"
     class="edit-menu"
@@ -808,8 +810,6 @@ textarea {
 
   </div>
 
-
-  <!-- 背景メニュー -->
 
   <div
     id="backgroundMenu"
@@ -1688,8 +1688,6 @@ function parseDanmaku(source) {
     );
 
 
-  /* color */
-
   text =
     text.replace(
 
@@ -1711,10 +1709,6 @@ function parseDanmaku(source) {
       }
     );
 
-
-  /* size
-     TOPIAに近づけるため 0.75倍
-  */
 
   text =
     text.replace(
@@ -1741,8 +1735,6 @@ function parseDanmaku(source) {
     );
 
 
-  /* italic */
-
   text =
     text.replace(
 
@@ -1751,8 +1743,6 @@ function parseDanmaku(source) {
       "<i>$1</i>"
     );
 
-
-  /* 改行 */
 
   text =
     text.replace(
