@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+
+<title>弾幕メモ</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+  --bg: #000000;
+  --panel: #161616;
+  --panel2: #202020;
+  --border: #333333;
+  --text: #ffffff;
+  --sub: #aaaaaa;
+  --accent: #ffd60a;
+  --danger: #ff453a;
+}
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+}
+
+body {
+  padding:
+    env(safe-area-inset-top)
+    0
+    env(safe-area-inset-bottom);
+}
+
+button, input, textarea {
+  font: inherit;
+}
+
+/* ---------- 共通 ---------- */
+
+.screen {
+  display: none;
+  min-height: 100vh;
+}
+
+.screen.active {
+  display: block;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 58px;
+  padding: 8px 16px;
+  background: rgba(0,0,0,.92);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border);
+}
+
+.header-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.header-button {
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font-size: 16px;
+  padding: 10px 4px;
+}
+
+.content {
+  padding: 14px 14px 100px;
+}
+
+.empty {
+  color: var(--sub);
+  text-align: center;
+  padding: 80px 20px;
+  line-height: 1.7;
+}
+
+.fab {
+  position: fixed;
+  right: 22px;
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  width: 58px;
+  height: 58px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #000;
+  font-size: 34px;
+  font-weight: 300;
+  box-shadow: 0 6px 24px rgba(0,0,0,.45);
+}
+
+/* ---------- フォルダ ---------- */
+
+.folder {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 17px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.folder-icon {
+  color: var(--accent);
+  font-size: 22px;
+}
+
+.folder-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.folder-name {
+  font-size: 17px;
+  color: white;
+}
+
+.folder-count {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--sub);
+}
+
+.chevron {
+  color: #777;
+  font-size: 22px;
+}
+
+/* ---------- 弾幕一覧 ---------- */
+
+.search {
+  width: 100%;
+  border: 0;
+  border-radius: 11px;
+  padding: 11px 13px;
+  margin-bottom: 14px;
+  background: var(--panel2);
+  color: white;
+  font-size: 16px;
+  outline: none;
+}
+
+.danmaku-card {
+  position: relative;
+  margin-bottom: 9px;
+  padding: 16px 46px 16px 15px;
+  border: 1px solid #282828;
+  border-radius: 12px;
+  background: var(--panel);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+.danmaku-card:active {
+  opacity: .65;
+}
+
+.more {
+  position: absolute;
+  right: 7px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  background: none;
+  color: #888;
+  font-size: 22px;
+  padding: 12px;
+}
+
+/* ---------- 編集 ---------- */
+
+.preview-label,
+.input-label {
+  margin: 8px 3px;
+  color: var(--sub);
+  font-size: 13px;
+}
+
+.preview {
+  min-height: 170px;
+  margin-bottom: 18px;
+  padding: 20px 15px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: var(--bg);
+  color: white;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
+
+.editor {
+  width: 100%;
+  min-height: 240px;
+  resize: vertical;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  padding: 15px;
+  background: var(--panel);
+  color: white;
+  outline: none;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.editor:focus {
+  border-color: #666;
+}
+
+.action-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.action {
+  flex: 1;
+  border: 0;
+  border-radius: 11px;
+  padding: 13px 10px;
+  background: var(--panel2);
+  color: white;
+}
+
+.action.danger {
+  color: var(--danger);
+}
+
+/* ---------- 設定 ---------- */
+
+.setting {
+  padding: 17px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.setting-title {
+  margin-bottom: 11px;
+  font-size: 16px;
+}
+
+.color-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.color-picker {
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 2px solid #555;
+  border-radius: 50%;
+  overflow: hidden;
+  background: none;
+}
+
+.color-code {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  background: var(--panel);
+  color: white;
+  outline: none;
+  font-size: 16px;
+}
+
+.file-input {
+  width: 100%;
+  color: white;
+}
+
+.remove-bg {
+  margin-top: 12px;
+  border: 0;
+  border-radius: 10px;
+  padding: 11px 14px;
+  background: var(--panel2);
+  color: white;
+}
+
+/* ---------- Toast ---------- */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(100px + env(safe-area-inset-bottom));
+  transform: translateX(-50%) translateY(20px);
+  padding: 10px 17px;
+  border-radius: 20px;
+  background: #eeeeee;
+  color: #111;
+  font-size: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition: .2s;
+  z-index: 100;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+</style>
+</head>
+
+<body>
+
+<!-- フォルダ一覧 -->
+<section id="foldersScreen" class="screen active">
+
+  <header class="header">
+    <div class="header-title">フォルダ</div>
+    <button class="header-button" onclick="openSettings()">設定</button>
+  </header>
+
+  <main id="folderList" class="content"></main>
+
+  <button class="fab" onclick="addFolder()">＋</button>
+</section>
+
+
+<!-- 弾幕一覧 -->
+<section id="listScreen" class="screen">
+
+  <header class="header">
+    <button class="header-button" onclick="showFolders()">‹ フォルダ</button>
+    <div id="currentFolderName" class="header-title"></div>
+    <button class="header-button" onclick="renameFolder()">•••</button>
+  </header>
+
+  <main class="content">
+
+    <input
+      id="search"
+      class="search"
+      type="search"
+      placeholder="検索"
+      oninput="renderDanmaku()"
+    >
+
+    <div id="danmakuList"></div>
+
+  </main>
+
+  <button class="fab" onclick="newDanmaku()">＋</button>
+</section>
+
+
+<!-- 編集 -->
+<section id="editScreen" class="screen">
+
+  <header class="header">
+    <button class="header-button" onclick="closeEditor()">‹ 戻る</button>
+    <div class="header-title">編集</div>
+    <button class="header-button" onclick="closeEditor()">完了</button>
+  </header>
+
+  <main class="content">
+
+    <div class="preview-label">プレビュー</div>
+    <div id="preview" class="preview"></div>
+
+    <div class="input-label">入力</div>
+
+    <textarea
+      id="editor"
+      class="editor"
+      placeholder="弾幕を入力"
+      oninput="editorChanged()"
+    ></textarea>
+
+    <div class="action-row">
+      <button class="action" onclick="copyCurrent()">コピー</button>
+      <button class="action danger" onclick="deleteCurrent()">削除</button>
+    </div>
+
+  </main>
+</section>
+
+
+<!-- 設定 -->
+<section id="settingsScreen" class="screen">
+
+  <header class="header">
+    <button class="header-button" onclick="closeSettings()">‹ 戻る</button>
+    <div class="header-title">設定</div>
+    <div style="width:42px"></div>
+  </header>
+
+  <main class="content">
+
+    <div class="setting">
+      <div class="setting-title">背景色</div>
+
+      <div class="color-row">
+
+        <input
+          id="backgroundPicker"
+          class="color-picker"
+          type="color"
+          value="#000000"
+          oninput="pickerChanged()"
+        >
+
+        <input
+          id="backgroundCode"
+          class="color-code"
+          value="#000000"
+          maxlength="9"
+          oninput="codeChanged()"
+        >
+
+      </div>
+    </div>
+
+    <div class="setting">
+      <div class="setting-title">背景画像</div>
+
+      <input
+        id="backgroundImage"
+        class="file-input"
+        type="file"
+        accept="image/*"
+        onchange="imageChanged(event)"
+      >
+
+      <button class="remove-bg" onclick="removeBackgroundImage()">
+        背景画像を削除
+      </button>
+    </div>
+
+  </main>
+</section>
+
+
+<div id="toast" class="toast">コピーしました</div>
+
+
+<script>
+
+/* ------------------------------
+   データ
+------------------------------ */
+
+const STORAGE_KEY = "danmakuMemoData_v1";
+
+let data = loadData();
+
+let currentFolderId = null;
+let currentDanmakuId = null;
+let settingsReturnScreen = "foldersScreen";
+
+
+function defaultData() {
+  return {
+    folders: [
+      {
+        id: makeId(),
+        name: "弾幕",
+        items: []
+      }
+    ],
+
+    settings: {
+      backgroundColor: "#000000",
+      backgroundImage: ""
+    }
+  };
+}
+
+
+function loadData() {
+
+  try {
+
+    const saved = localStorage.getItem(STORAGE_KEY);
+
+    if (saved) {
+      return JSON.parse(saved);
+    }
+
+  } catch (e) {}
+
+  return defaultData();
+}
+
+
+function saveData() {
+
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(data)
+  );
+
+  applyBackground();
+}
+
+
+function makeId() {
+  return Date.now().toString(36) +
+         Math.random().toString(36).slice(2);
+}
+
+
+/* ------------------------------
+   画面
+------------------------------ */
+
+function showScreen(id) {
+
+  document
+    .querySelectorAll(".screen")
+    .forEach(screen => {
+      screen.classList.remove("active");
+    });
+
+  document
+    .getElementById(id)
+    .classList.add("active");
+}
+
+
+function showFolders() {
+
+  currentFolderId = null;
+
+  renderFolders();
+  showScreen("foldersScreen");
+}
+
+
+/* ------------------------------
+   フォルダ
+------------------------------ */
+
+function renderFolders() {
+
+  const list = document.getElementById("folderList");
+
+  list.innerHTML = "";
+
+  if (!data.folders.length) {
+
+    list.innerHTML =
+      '<div class="empty">フォルダがありません。<br>＋から作成できます。</div>';
+
+    return;
+  }
+
+
+  data.folders.forEach(folder => {
+
+    const row = document.createElement("div");
+
+    row.className = "folder";
+
+    row.innerHTML = `
+      <div class="folder-icon">▱</div>
+
+      <div class="folder-info">
+        <div class="folder-name"></div>
+        <div class="folder-count">
+          ${folder.items.length}件
+        </div>
+      </div>
+
+      <div class="chevron">›</div>
+    `;
+
+    row.querySelector(".folder-name").textContent =
+      folder.name;
+
+    row.onclick = () => openFolder(folder.id);
+
+    list.appendChild(row);
+  });
+}
+
+
+function addFolder() {
+
+  const name = prompt("フォルダ名");
+
+  if (!name || !name.trim()) return;
+
+  data.folders.push({
+    id: makeId(),
+    name: name.trim(),
+    items: []
+  });
+
+  saveData();
+  renderFolders();
+}
+
+
+function openFolder(id) {
+
+  currentFolderId = id;
+
+  const folder = getCurrentFolder();
+
+  document
+    .getElementById("currentFolderName")
+    .textContent = folder.name;
+
+  document.getElementById("search").value = "";
+
+  renderDanmaku();
+
+  showScreen("listScreen");
+}
+
+
+function renameFolder() {
+
+  const folder = getCurrentFolder();
+
+  if (!folder) return;
+
+  const action = prompt(
+    "フォルダ名を変更できます。\n削除する場合は「削除」と入力してください。",
+    folder.name
+  );
+
+  if (action === null) return;
+
+
+  if (action === "削除") {
+
+    if (!confirm("このフォルダと中の弾幕を削除しますか？")) {
+      return;
+    }
+
+    data.folders =
+      data.folders.filter(f => f.id !== folder.id);
+
+    saveData();
+    showFolders();
+
+    return;
+  }
+
+
+  if (action.trim()) {
+
+    folder.name = action.trim();
+
+    saveData();
+
+    document
+      .getElementById("currentFolderName")
+      .textContent = folder.name;
+  }
+}
+
+
+function getCurrentFolder() {
+
+  return data.folders.find(
+    f => f.id === currentFolderId
+  );
+}
+
+
+/* ------------------------------
+   弾幕
+------------------------------ */
+
+function renderDanmaku() {
+
+  const folder = getCurrentFolder();
+
+  if (!folder) return;
+
+  const container =
+    document.getElementById("danmakuList");
+
+  const query =
+    document
+      .getElementById("search")
+      .value
+      .toLowerCase();
+
+  container.innerHTML = "";
+
+
+  const items = folder.items.filter(item =>
+    item.text.toLowerCase().includes(query)
+  );
+
+
+  if (!items.length) {
+
+    container.innerHTML =
+      '<div class="empty">弾幕がありません。<br>＋から追加できます。</div>';
+
+    return;
+  }
+
+
+  items.forEach(item => {
+
+    const card =
+      document.createElement("div");
+
+    card.className = "danmaku-card";
+
+    const content =
+      document.createElement("div");
+
+    content.innerHTML =
+      parseDanmaku(item.text);
+
+    card.appendChild(content);
+
+
+    const more =
+      document.createElement("button");
+
+    more.className = "more";
+    more.textContent = "•••";
+
+    more.onclick = event => {
+
+      event.stopPropagation();
+
+      editDanmaku(item.id);
+    };
+
+
+    card.appendChild(more);
+
+
+    card.onclick = () =>
+      copyText(item.text);
+
+
+    container.appendChild(card);
+  });
+}
+
+
+function newDanmaku() {
+
+  const folder = getCurrentFolder();
+
+  if (!folder) return;
+
+  const item = {
+    id: makeId(),
+    text: ""
+  };
+
+  folder.items.push(item);
+
+  currentDanmakuId = item.id;
+
+  saveData();
+
+  openEditor(item);
+}
+
+
+function editDanmaku(id) {
+
+  const folder = getCurrentFolder();
+
+  const item =
+    folder.items.find(i => i.id === id);
+
+  if (!item) return;
+
+  currentDanmakuId = id;
+
+  openEditor(item);
+}
+
+
+function openEditor(item) {
+
+  document.getElementById("editor").value =
+    item.text;
+
+  updatePreview();
+
+  showScreen("editScreen");
+
+  setTimeout(() => {
+    document.getElementById("editor").focus();
+  }, 100);
+}
+
+
+function editorChanged() {
+
+  const folder = getCurrentFolder();
+
+  if (!folder) return;
+
+  const item =
+    folder.items.find(
+      i => i.id === currentDanmakuId
+    );
+
+  if (!item) return;
+
+  item.text =
+    document.getElementById("editor").value;
+
+  saveData();
+
+  updatePreview();
+}
+
+
+function closeEditor() {
+
+  const folder = getCurrentFolder();
+
+  if (folder) {
+
+    folder.items =
+      folder.items.filter(
+        item => item.text.trim() !== ""
+      );
+
+    saveData();
+    renderDanmaku();
+  }
+
+  currentDanmakuId = null;
+
+  showScreen("listScreen");
+}
+
+
+function deleteCurrent() {
+
+  const folder = getCurrentFolder();
+
+  if (!folder) return;
+
+  if (!confirm("この弾幕を削除しますか？")) {
+    return;
+  }
+
+  folder.items =
+    folder.items.filter(
+      item => item.id !== currentDanmakuId
+    );
+
+  saveData();
+
+  currentDanmakuId = null;
+
+  renderDanmaku();
+
+  showScreen("listScreen");
+}
+
+
+/* ------------------------------
+   タグ変換
+------------------------------ */
+
+function escapeHTML(text) {
+
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+
+function validColor(color) {
+
+  return /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/
+    .test(color);
+}
+
+
+function parseDanmaku(source) {
+
+  let text = escapeHTML(source);
+
+
+  /* color */
+
+  text = text.replace(
+    /&lt;color=(#[0-9a-fA-F]{3,8})&gt;([\s\S]*?)&lt;\/color&gt;/gi,
+    (match, color, content) => {
+
+      if (!validColor(color)) {
+        return content;
+      }
+
+      return `<span style="color:${color}">${content}</span>`;
+    }
+  );
+
+
+  /* size */
+
+  text = text.replace(
+    /&lt;size=(\d+(?:\.\d+)?)&gt;([\s\S]*?)&lt;\/size&gt;/gi,
+    (match, size, content) => {
+
+      const number =
+        Math.max(1, Math.min(Number(size), 100));
+
+      return `<span style="font-size:${number}px">${content}</span>`;
+    }
+  );
+
+
+  /* italic */
+
+  text = text.replace(
+    /&lt;i&gt;([\s\S]*?)&lt;\/i&gt;/gi,
+    "<i>$1</i>"
+  );
+
+
+  /* 改行 */
+
+  text = text.replace(/\r?\n/g, "<br>");
+
+
+  return text;
+}
+
+
+function updatePreview() {
+
+  const text =
+    document.getElementById("editor").value;
+
+  document.getElementById("preview").innerHTML =
+    parseDanmaku(text);
+}
+
+
+/* ------------------------------
+   コピー
+------------------------------ */
+
+function prepareCopy(text) {
+
+  /*
+    既存の \\ua を一度改行扱いにしてから
+    実際の改行を \\ua に変換。
+    二重化を防ぐ。
+  */
+
+  return text
+    .replace(/\\ua\r?\n/g, "\n")
+    .replace(/\r\n|\r|\n/g, "\\ua");
+}
+
+
+async function copyText(text) {
+
+  const output = prepareCopy(text);
+
+  try {
+
+    await navigator.clipboard.writeText(output);
+
+    showToast("コピーしました");
+
+  } catch (e) {
+
+    const area =
+      document.createElement("textarea");
+
+    area.value = output;
+
+    document.body.appendChild(area);
+
+    area.select();
+
+    document.execCommand("copy");
+
+    area.remove();
+
+    showToast("コピーしました");
+  }
+}
+
+
+function copyCurrent() {
+
+  const text =
+    document.getElementById("editor").value;
+
+  copyText(text);
+}
+
+
+/* ------------------------------
+   設定
+------------------------------ */
+
+function openSettings() {
+
+  settingsReturnScreen = "foldersScreen";
+
+  const color =
+    data.settings.backgroundColor || "#000000";
+
+  document
+    .getElementById("backgroundCode")
+    .value = color;
+
+  if (/^#[0-9a-fA-F]{6}$/.test(color)) {
+
+    document
+      .getElementById("backgroundPicker")
+      .value = color;
+  }
+
+  showScreen("settingsScreen");
+}
+
+
+function closeSettings() {
+
+  showScreen(settingsReturnScreen);
+}
+
+
+function pickerChanged() {
+
+  const color =
+    document
+      .getElementById("backgroundPicker")
+      .value;
+
+  document
+    .getElementById("backgroundCode")
+    .value = color;
+
+  data.settings.backgroundColor = color;
+
+  saveData();
+}
+
+
+function codeChanged() {
+
+  const input =
+    document.getElementById("backgroundCode");
+
+  const color = input.value.trim();
+
+  if (!/^#[0-9a-fA-F]{6}$/.test(color)) {
+    return;
+  }
+
+  data.settings.backgroundColor = color;
+
+  document
+    .getElementById("backgroundPicker")
+    .value = color;
+
+  saveData();
+}
+
+
+function imageChanged(event) {
+
+  const file = event.target.files[0];
+
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = e => {
+
+    data.settings.backgroundImage =
+      e.target.result;
+
+    saveData();
+  };
+
+  reader.readAsDataURL(file);
+}
+
+
+function removeBackgroundImage() {
+
+  data.settings.backgroundImage = "";
+
+  document
+    .getElementById("backgroundImage")
+    .value = "";
+
+  saveData();
+}
+
+
+function applyBackground() {
+
+  const color =
+    data.settings.backgroundColor || "#000000";
+
+  document.documentElement.style
+    .setProperty("--bg", color);
+
+
+  if (data.settings.backgroundImage) {
+
+    document.body.style.backgroundImage =
+      `linear-gradient(rgba(0,0,0,.25), rgba(0,0,0,.25)),
+       url("${data.settings.backgroundImage}")`;
+
+    document.body.style.backgroundSize = "cover";
+    document.body.style.backgroundPosition = "center";
+    document.body.style.backgroundAttachment = "fixed";
+
+  } else {
+
+    document.body.style.backgroundImage = "none";
+  }
+}
+
+
+/* ------------------------------
+   通知
+------------------------------ */
+
+let toastTimer;
+
+
+function showToast(message) {
+
+  const toast =
+    document.getElementById("toast");
+
+  toast.textContent = message;
+
+  toast.classList.add("show");
+
+  clearTimeout(toastTimer);
+
+  toastTimer = setTimeout(() => {
+    toast.classList.remove("show");
+  }, 1300);
+}
+
+
+/* ------------------------------
+   起動
+------------------------------ */
+
+applyBackground();
+renderFolders();
+
+</script>
+
+</body>
+</html>
