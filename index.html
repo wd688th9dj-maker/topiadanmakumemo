@@ -346,6 +346,40 @@ button, input, textarea {
   background: var(--panel2);
   color: var(--accent);
 }
+  .edit-menu {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1000;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.edit-menu.show {
+  display: flex;
+}
+
+.edit-menu-sheet {
+  width: 100%;
+  background: var(--panel);
+  border-radius: 18px 18px 0 0;
+  padding: 12px 16px 28px;
+}
+
+.edit-menu-sheet button {
+  width: 100%;
+  padding: 16px;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-size: 17px;
+}
+
+.edit-menu-sheet button.danger {
+  color: #ff5a52;
+}
 </style>
 </head>
 
@@ -398,7 +432,7 @@ button, input, textarea {
   <header class="header">
     <button class="header-button" onclick="closeEditor()">‹ 戻る</button>
     <div class="header-title">編集</div>
-    <button class="header-button" onclick="closeEditor()">完了</button>
+    <button class="header-button" onclick="openEditMenu()">•••</button>
   </header>
 
   <main class="content">
@@ -420,12 +454,18 @@ button, input, textarea {
 <div id="previewMode" style="display:none;">
   <div id="preview" class="preview"></div>
 </div>
-    <div class="action-row">
-      <button class="action" onclick="copyCurrent()">コピー</button>
-      <button class="action danger" onclick="deleteCurrent()">削除</button>
-    </div>
+    
 
   </main>
+
+<div id="editMenu" class="edit-menu" onclick="closeEditMenu()">
+  <div class="edit-menu-sheet" onclick="event.stopPropagation()">
+    <button onclick="copyCurrent(); closeEditMenu()">コピー</button>
+    <button class="danger" onclick="deleteCurrent(); closeEditMenu()">削除</button>
+    <button onclick="closeEditMenu()">キャンセル</button>
+  </div>
+</div>
+
 </section>
 
 
@@ -505,6 +545,46 @@ function setEditMode(mode) {
     editBtn.classList.remove("active");
     previewBtn.classList.add("active");
   }
+}
+  function openEditMenu() {
+  document.getElementById("editMenu").classList.add("show");
+}
+
+function closeEditMenu() {
+  document.getElementById("editMenu").classList.remove("show");
+}
+  let listMenuItemId = null;
+
+function openListMenu(itemId) {
+  listMenuItemId = itemId;
+  document.getElementById("listMenu").classList.add("show");
+}
+
+function closeListMenu() {
+  document.getElementById("listMenu").classList.remove("show");
+  listMenuItemId = null;
+}
+
+function copyListItem() {
+  const folder = getCurrentFolder();
+  if (!folder) return;
+
+  const item = folder.items.find(i => i.id === listMenuItemId);
+  if (!item) return;
+
+  copyText(item.text);
+  closeListMenu();
+}
+
+function deleteListItem() {
+  const folder = getCurrentFolder();
+  if (!folder) return;
+
+  folder.items = folder.items.filter(i => i.id !== listMenuItemId);
+
+  saveData();
+  renderDanmaku();
+  closeListMenu();
 }
 /* ------------------------------
    データ
@@ -791,25 +871,7 @@ function renderDanmaku() {
 
     more.onclick = event => {
   event.stopPropagation();
-
-  const action = prompt(
-    "操作を選んでください\n1：コピー\n2：削除"
-  );
-
-  if (action === "1") {
-    copyText(item.text);
-  }
-
-  if (action === "2") {
-    if (!confirm("この弾幕を削除しますか？")) return;
-
-    folder.items = folder.items.filter(
-      i => i.id !== item.id
-    );
-
-    saveData();
-    renderDanmaku();
-  }
+  openListMenu(item.id);
 };
 
 
