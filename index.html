@@ -1283,27 +1283,26 @@ function removeBackgroundImage() {
 
 
 function applyBackground() {
-
   const color =
     data.settings.backgroundColor || "#000000";
 
-  document.documentElement.style
-    .setProperty("--bg", color);
+  const previewMode =
+    document.getElementById("previewMode");
 
+  if (!previewMode) return;
+
+  previewMode.style.backgroundColor = color;
 
   if (data.settings.backgroundImage) {
-
-    document.body.style.backgroundImage =
+    previewMode.style.backgroundImage =
       `linear-gradient(rgba(0,0,0,.25), rgba(0,0,0,.25)),
        url("${data.settings.backgroundImage}")`;
 
-    document.body.style.backgroundSize = "cover";
-    document.body.style.backgroundPosition = "center";
-    document.body.style.backgroundAttachment = "fixed";
-
+    previewMode.style.backgroundSize = "cover";
+    previewMode.style.backgroundPosition = "center";
+    previewMode.style.backgroundRepeat = "no-repeat";
   } else {
-
-    document.body.style.backgroundImage = "none";
+    previewMode.style.backgroundImage = "none";
   }
 }
 
