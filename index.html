@@ -2,20 +2,12 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta
-  name="viewport"
-  content="width=device-width,initial-scale=1,viewport-fit=cover"
->
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
 
 <title>トピア弾幕メモ</title>
 
 <style>
-
-/* ==============================
-   基本
-============================== */
-
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
@@ -38,7 +30,6 @@ body {
   min-height: 100%;
   background: #000000;
   color: var(--text);
-
   font-family:
     -apple-system,
     BlinkMacSystemFont,
@@ -86,7 +77,7 @@ textarea {
   min-height: 58px;
   padding: 8px 16px;
 
-  background: rgba(0, 0, 0, 0.92);
+  background: rgba(0,0,0,.92);
   backdrop-filter: blur(18px);
 
   border-bottom: 1px solid var(--border);
@@ -101,7 +92,6 @@ textarea {
   border: 0;
   background: none;
   color: var(--accent);
-
   font-size: 16px;
   padding: 10px 4px;
 }
@@ -117,19 +107,14 @@ textarea {
 .empty {
   color: var(--sub);
   text-align: center;
-
   padding: 80px 20px;
-
   line-height: 1.7;
 }
 
 .fab {
   position: fixed;
-
   right: 22px;
-  bottom: calc(
-    24px + env(safe-area-inset-bottom)
-  );
+  bottom: calc(24px + env(safe-area-inset-bottom));
 
   width: 58px;
   height: 58px;
@@ -138,14 +123,12 @@ textarea {
   border-radius: 50%;
 
   background: var(--accent);
-  color: #000000;
+  color: #000;
 
   font-size: 34px;
   font-weight: 300;
 
-  box-shadow:
-    0 6px 24px
-    rgba(0,0,0,.45);
+  box-shadow: 0 6px 24px rgba(0,0,0,.45);
 }
 
 
@@ -156,13 +139,11 @@ textarea {
 .folder {
   display: flex;
   align-items: center;
-
   gap: 13px;
 
   padding: 17px 8px;
 
-  border-bottom:
-    1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 
 .folder-icon {
@@ -182,13 +163,12 @@ textarea {
 
 .folder-count {
   margin-top: 4px;
-
   font-size: 13px;
   color: var(--sub);
 }
 
 .chevron {
-  color: #777777;
+  color: #777;
   font-size: 22px;
 }
 
@@ -210,7 +190,6 @@ textarea {
   color: white;
 
   font-size: 16px;
-
   outline: none;
 }
 
@@ -218,16 +197,9 @@ textarea {
   position: relative;
 
   margin-bottom: 9px;
+  padding: 16px 46px 16px 15px;
 
-  padding:
-    16px
-    46px
-    16px
-    15px;
-
-  border:
-    1px solid #282828;
-
+  border: 1px solid #282828;
   border-radius: 12px;
 
   background: var(--panel);
@@ -238,33 +210,26 @@ textarea {
   line-height: 1.5;
 }
 
-/*
-  一覧は見やすさ優先で
-  タグのsizeに関係なく14px
-*/
 .danmaku-card,
 .danmaku-card * {
   font-size: 14px !important;
 }
 
 .danmaku-card:active {
-  opacity: 0.65;
+  opacity: .65;
 }
 
 .more {
   position: absolute;
-
   right: 7px;
   top: 50%;
 
-  transform:
-    translateY(-50%);
+  transform: translateY(-50%);
 
   border: 0;
-
   background: none;
-  color: #888888;
 
+  color: #888;
   font-size: 22px;
 
   padding: 12px;
@@ -281,9 +246,7 @@ textarea {
 
   resize: vertical;
 
-  border:
-    1px solid var(--border);
-
+  border: 1px solid var(--border);
   border-radius: 13px;
 
   padding: 15px;
@@ -298,7 +261,7 @@ textarea {
 }
 
 .editor:focus {
-  border-color: #666666;
+  border-color: #666;
 }
 
 
@@ -317,9 +280,7 @@ textarea {
 
   background: var(--panel);
 
-  border:
-    1px solid var(--border);
-
+  border: 1px solid var(--border);
   border-radius: 14px;
 }
 
@@ -346,30 +307,17 @@ textarea {
    TOPIA風プレビュー
 ============================== */
 
-/*
-  背景画像の縦横比に
-  JavaScript側で自動調整する
-*/
-
 #previewMode {
   position: relative;
 
   width: 100%;
-
-  /*
-    写真がない時だけ
-    仮のスマホ比率
-  */
   aspect-ratio: 9 / 19.5;
-
-  max-height:
-    calc(100vh - 180px);
 
   margin: 0 auto;
 
   background-color: #000000;
 
-  background-size: contain;
+  background-size: 100% 100%;
   background-position: center;
   background-repeat: no-repeat;
 
@@ -379,106 +327,57 @@ textarea {
 }
 
 
-/* ==============================
-   TOPIA風コメント
-============================== */
+/* TOPIA風コメント */
 
 .preview {
-  /*
-    fixedではなく
-    プレビュー画像を基準に固定
-  */
   position: absolute;
 
-  /*
-    TOPIA画面の左端に近づける
-  */
-  left: 2.6%;
-
-  /*
-    TOPIAのコメント欄あたり
-  */
-  bottom: 18%;
+  left: 14px;
+  bottom: 90px;
 
   width: fit-content;
-
-  /*
-    TOPIAの吹き出し幅に近づける
-  */
-  max-width: 91%;
+  max-width: calc(100% - 28px);
 
   min-height: 0;
 
   margin: 0;
-
-  padding:
-    7px
-    11px;
+  padding: 6px 10px;
 
   border: 0;
+  border-radius: 14px;
 
-  /*
-    TOPIA寄りの丸み
-  */
-  border-radius: 15px;
-
-  /*
-    前より少し透明
-  */
-  background:
-    rgba(24, 24, 24, 0.56);
-
+  background: rgba(24,24,24,.56);
   color: white;
 
-  /*
-    通常TOPIAコメントの基準
-  */
-  font-size: 15px;
-
-  line-height: 1.32;
+  font-size: 14px;
+  line-height: 1.28;
 
   white-space: pre-wrap;
-
   overflow-wrap: anywhere;
 
-  /*
-    iPhoneの見た目に近い太さ
-  */
-  font-weight: 400;
-
-  z-index: 20;
+  z-index: 100;
 }
 
 
-/* ==============================
-   背景ボタン
-============================== */
+/* 背景ボタン */
 
 .preview-bg-button {
   position: absolute;
 
-  top: 10px;
-  right: 10px;
+  top: 12px;
+  right: 12px;
 
-  z-index: 30;
+  z-index: 101;
 
   border: 0;
-
   border-radius: 12px;
 
-  padding:
-    8px
-    11px;
+  padding: 9px 13px;
 
-  background:
-    rgba(20, 20, 20, 0.56);
-
+  background: rgba(0,0,0,.58);
   color: white;
 
-  font-size: 13px;
-
-  backdrop-filter:
-    blur(8px);
+  font-size: 14px;
 }
 
 
@@ -490,11 +389,9 @@ textarea {
   display: none;
 
   position: fixed;
-
   inset: 0;
 
-  background:
-    rgba(0, 0, 0, 0.45);
+  background: rgba(0,0,0,.45);
 
   z-index: 1000;
 
@@ -511,39 +408,29 @@ textarea {
 
   background: var(--panel);
 
-  border-radius:
-    18px 18px 0 0;
+  border-radius: 18px 18px 0 0;
 
   padding:
     12px
     16px
-    calc(
-      28px +
-      env(safe-area-inset-bottom)
-    );
+    calc(28px + env(safe-area-inset-bottom));
 }
 
-.edit-menu-sheet
-button.menu-action {
-
+.edit-menu-sheet button.menu-action {
   width: 100%;
 
   padding: 16px;
 
   border: 0;
-
-  border-bottom:
-    1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 
   background: transparent;
-
   color: var(--text);
 
   font-size: 17px;
 }
 
-.edit-menu-sheet
-button.danger {
+.edit-menu-sheet button.danger {
   color: #ff5a52;
 }
 
@@ -553,10 +440,7 @@ button.danger {
 ============================== */
 
 .background-menu-title {
-  padding:
-    5px
-    3px
-    14px;
+  padding: 5px 3px 14px;
 
   color: white;
 
@@ -567,8 +451,7 @@ button.danger {
 .background-setting {
   padding: 14px 0;
 
-  border-bottom:
-    1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 
 .background-label {
@@ -582,7 +465,6 @@ button.danger {
 .color-row {
   display: flex;
   align-items: center;
-
   gap: 12px;
 }
 
@@ -592,9 +474,7 @@ button.danger {
 
   padding: 0;
 
-  border:
-    2px solid #555555;
-
+  border: 2px solid #555;
   border-radius: 50%;
 
   overflow: hidden;
@@ -604,18 +484,14 @@ button.danger {
 
 .color-code {
   flex: 1;
-
   min-width: 0;
 
-  border:
-    1px solid var(--border);
-
+  border: 1px solid var(--border);
   border-radius: 10px;
 
   padding: 12px;
 
   background: var(--panel2);
-
   color: white;
 
   outline: none;
@@ -627,20 +503,17 @@ button.danger {
   width: 100%;
 
   border: 0;
-
   border-radius: 11px;
 
   padding: 14px;
 
   background: var(--panel2);
-
   color: white;
 
   font-size: 16px;
 }
 
-.background-photo-button
-+
+.background-photo-button +
 .background-photo-button {
   margin-top: 8px;
 }
@@ -658,33 +531,25 @@ button.danger {
   position: fixed;
 
   left: 50%;
-
-  bottom:
-    calc(
-      100px +
-      env(safe-area-inset-bottom)
-    );
+  bottom: calc(100px + env(safe-area-inset-bottom));
 
   transform:
     translateX(-50%)
     translateY(20px);
 
-  padding:
-    10px
-    17px;
+  padding: 10px 17px;
 
   border-radius: 20px;
 
-  background: #eeeeee;
-  color: #111111;
+  background: #eee;
+  color: #111;
 
   font-size: 14px;
 
   opacity: 0;
-
   pointer-events: none;
 
-  transition: 0.2s;
+  transition: .2s;
 
   z-index: 2000;
 }
@@ -699,7 +564,6 @@ button.danger {
 
 </style>
 </head>
-
 
 <body>
 
@@ -725,12 +589,10 @@ button.danger {
 
   </header>
 
-
   <main
     id="folderList"
     class="content"
   ></main>
-
 
   <button
     class="fab"
@@ -740,7 +602,6 @@ button.danger {
   </button>
 
 </section>
-
 
 
 <!-- ==============================
@@ -775,7 +636,6 @@ button.danger {
 
   </header>
 
-
   <main class="content">
 
     <input
@@ -790,14 +650,12 @@ button.danger {
 
   </main>
 
-
   <button
     class="fab"
     onclick="newDanmaku()"
   >
     ＋
   </button>
-
 
   <div
     id="listMenu"
@@ -831,7 +689,6 @@ button.danger {
 </section>
 
 
-
 <!-- ==============================
      編集
 ============================== -->
@@ -863,9 +720,7 @@ button.danger {
 
   </header>
 
-
   <main class="content">
-
 
     <div class="mode-switch">
 
@@ -888,8 +743,6 @@ button.danger {
     </div>
 
 
-    <!-- 編集 -->
-
     <div id="editMode">
 
       <textarea
@@ -901,8 +754,6 @@ button.danger {
 
     </div>
 
-
-    <!-- プレビュー -->
 
     <div
       id="previewMode"
@@ -916,14 +767,12 @@ button.danger {
         背景
       </button>
 
-
       <div
         id="preview"
         class="preview"
       ></div>
 
     </div>
-
 
   </main>
 
@@ -943,20 +792,14 @@ button.danger {
 
       <button
         class="menu-action"
-        onclick="
-          copyCurrent();
-          closeEditMenu()
-        "
+        onclick="copyCurrent(); closeEditMenu()"
       >
         コピー
       </button>
 
       <button
         class="menu-action danger"
-        onclick="
-          deleteCurrent();
-          closeEditMenu()
-        "
+        onclick="deleteCurrent(); closeEditMenu()"
       >
         削除
       </button>
@@ -966,7 +809,7 @@ button.danger {
   </div>
 
 
-  <!-- 背景設定メニュー -->
+  <!-- 背景メニュー -->
 
   <div
     id="backgroundMenu"
@@ -979,27 +822,17 @@ button.danger {
       onclick="event.stopPropagation()"
     >
 
-      <div
-        class="background-menu-title"
-      >
+      <div class="background-menu-title">
         プレビュー背景
       </div>
 
+      <div class="background-setting">
 
-      <div
-        class="background-setting"
-      >
-
-        <div
-          class="background-label"
-        >
+        <div class="background-label">
           背景色
         </div>
 
-
-        <div
-          class="color-row"
-        >
+        <div class="color-row">
 
           <input
             id="backgroundPicker"
@@ -1021,31 +854,18 @@ button.danger {
 
       </div>
 
+      <div class="background-setting">
 
-      <div
-        class="background-setting"
-      >
-
-        <div
-          class="background-label"
-        >
+        <div class="background-label">
           背景画像
         </div>
 
-
         <button
           class="background-photo-button"
-          onclick="
-            document
-              .getElementById(
-                'backgroundImage'
-              )
-              .click()
-          "
+          onclick="document.getElementById('backgroundImage').click()"
         >
           写真を選ぶ
         </button>
-
 
         <input
           id="backgroundImage"
@@ -1055,15 +875,9 @@ button.danger {
           hidden
         >
 
-
         <button
-          class="
-            background-photo-button
-            danger
-          "
-          onclick="
-            removeBackgroundImage()
-          "
+          class="background-photo-button danger"
+          onclick="removeBackgroundImage()"
         >
           写真を削除
         </button>
@@ -1077,11 +891,6 @@ button.danger {
 </section>
 
 
-
-<!-- ==============================
-     Toast
-============================== -->
-
 <div
   id="toast"
   class="toast"
@@ -1090,75 +899,47 @@ button.danger {
 </div>
 
 
-
 <script>
 
-
 /* ==============================
-   編集 / プレビュー切替
+   編集 / プレビュー
 ============================== */
 
 function setEditMode(mode) {
 
   const editMode =
-    document.getElementById(
-      "editMode"
-    );
+    document.getElementById("editMode");
 
   const previewMode =
-    document.getElementById(
-      "previewMode"
-    );
+    document.getElementById("previewMode");
 
   const editBtn =
-    document.getElementById(
-      "editModeBtn"
-    );
+    document.getElementById("editModeBtn");
 
   const previewBtn =
-    document.getElementById(
-      "previewModeBtn"
-    );
+    document.getElementById("previewModeBtn");
 
 
   if (mode === "edit") {
 
-    editMode.style.display =
-      "block";
+    editMode.style.display = "block";
+    previewMode.style.display = "none";
 
-    previewMode.style.display =
-      "none";
-
-    editBtn.classList.add(
-      "active"
-    );
-
-    previewBtn.classList.remove(
-      "active"
-    );
+    editBtn.classList.add("active");
+    previewBtn.classList.remove("active");
 
   } else {
 
-    editMode.style.display =
-      "none";
-
-    previewMode.style.display =
-      "block";
+    editMode.style.display = "none";
+    previewMode.style.display = "block";
 
     applyBackground();
 
-    editBtn.classList.remove(
-      "active"
-    );
-
-    previewBtn.classList.add(
-      "active"
-    );
+    editBtn.classList.remove("active");
+    previewBtn.classList.add("active");
 
   }
-
 }
-
 
 
 /* ==============================
@@ -1168,24 +949,16 @@ function setEditMode(mode) {
 function openEditMenu() {
 
   document
-    .getElementById(
-      "editMenu"
-    )
-    .classList
-    .add("show");
+    .getElementById("editMenu")
+    .classList.add("show");
 }
-
 
 function closeEditMenu() {
 
   document
-    .getElementById(
-      "editMenu"
-    )
-    .classList
-    .remove("show");
+    .getElementById("editMenu")
+    .classList.remove("show");
 }
-
 
 
 /* ==============================
@@ -1197,24 +970,16 @@ function openBackgroundMenu() {
   syncBackgroundControls();
 
   document
-    .getElementById(
-      "backgroundMenu"
-    )
-    .classList
-    .add("show");
+    .getElementById("backgroundMenu")
+    .classList.add("show");
 }
-
 
 function closeBackgroundMenu() {
 
   document
-    .getElementById(
-      "backgroundMenu"
-    )
-    .classList
-    .remove("show");
+    .getElementById("backgroundMenu")
+    .classList.remove("show");
 }
-
 
 
 /* ==============================
@@ -1223,94 +988,62 @@ function closeBackgroundMenu() {
 
 let listMenuItemId = null;
 
-
 function openListMenu(itemId) {
 
-  listMenuItemId =
-    itemId;
+  listMenuItemId = itemId;
 
   document
-    .getElementById(
-      "listMenu"
-    )
-    .classList
-    .add("show");
+    .getElementById("listMenu")
+    .classList.add("show");
 }
-
 
 function closeListMenu() {
 
   document
-    .getElementById(
-      "listMenu"
-    )
-    .classList
-    .remove("show");
+    .getElementById("listMenu")
+    .classList.remove("show");
 
-  listMenuItemId =
-    null;
+  listMenuItemId = null;
 }
-
 
 function copyListItem() {
 
   const folder =
     getCurrentFolder();
 
-
-  if (!folder)
-    return;
-
+  if (!folder) return;
 
   const item =
     folder.items.find(
-      i =>
-        i.id ===
-        listMenuItemId
+      i => i.id === listMenuItemId
     );
 
+  if (!item) return;
 
-  if (!item)
-    return;
-
-
-  copyText(
-    item.text
-  );
-
+  copyText(item.text);
 
   closeListMenu();
 }
-
 
 function deleteListItem() {
 
   const folder =
     getCurrentFolder();
 
-
-  if (!folder)
-    return;
-
+  if (!folder) return;
 
   if (
     !confirm(
       "この弾幕を削除しますか？"
     )
   ) {
-
     return;
-
   }
-
 
   folder.items =
     folder.items.filter(
-      i =>
-        i.id !==
-        listMenuItemId
+      i => i.id !== listMenuItemId
     );
-
 
   saveData();
 
@@ -1320,7 +1053,6 @@ function deleteListItem() {
 }
 
 
-
 /* ==============================
    データ
 ============================== */
@@ -1328,10 +1060,8 @@ function deleteListItem() {
 const STORAGE_KEY =
   "danmakuMemoData_v1";
 
-
 let data =
   loadData();
-
 
 let currentFolderId =
   null;
@@ -1340,35 +1070,25 @@ let currentDanmakuId =
   null;
 
 
-
 function defaultData() {
 
   return {
 
     folders: [
-
       {
         id: makeId(),
         name: "弾幕",
         items: []
       }
-
     ],
 
     settings: {
-
-      backgroundColor:
-        "#000000",
-
-      backgroundImage:
-        ""
-
+      backgroundColor: "#000000",
+      backgroundImage: ""
     }
 
   };
-
 }
-
 
 
 function loadData() {
@@ -1380,64 +1100,26 @@ function loadData() {
         STORAGE_KEY
       );
 
-
     if (saved) {
 
       const parsed =
         JSON.parse(saved);
 
-
       if (!parsed.settings) {
 
         parsed.settings = {
-
-          backgroundColor:
-            "#000000",
-
-          backgroundImage:
-            ""
-
+          backgroundColor: "#000000",
+          backgroundImage: ""
         };
-
       }
-
-
-      if (
-        !parsed.settings
-          .backgroundColor
-      ) {
-
-        parsed.settings
-          .backgroundColor =
-            "#000000";
-
-      }
-
-
-      if (
-        typeof
-        parsed.settings
-          .backgroundImage
-        !== "string"
-      ) {
-
-        parsed.settings
-          .backgroundImage =
-            "";
-
-      }
-
 
       return parsed;
-
     }
 
   } catch (e) {}
 
-
   return defaultData();
 }
-
 
 
 function saveData() {
@@ -1445,48 +1127,33 @@ function saveData() {
   try {
 
     localStorage.setItem(
-
       STORAGE_KEY,
-
       JSON.stringify(data)
-
     );
 
   } catch (e) {
 
-    console.error(
-      "保存に失敗しました",
-      e
-    );
+    console.error(e);
 
     showToast(
-      "保存容量が足りません"
+      "保存容量が足りない可能性があります"
     );
-
-    return false;
   }
 
-
   applyBackground();
-
-  return true;
 }
-
 
 
 function makeId() {
 
   return (
-    Date.now()
-      .toString(36)
+    Date.now().toString(36)
     +
     Math.random()
       .toString(36)
       .slice(2)
   );
-
 }
-
 
 
 /* ==============================
@@ -1496,34 +1163,24 @@ function makeId() {
 function showScreen(id) {
 
   document
-    .querySelectorAll(
-      ".screen"
-    )
-    .forEach(
-      screen => {
+    .querySelectorAll(".screen")
+    .forEach(screen => {
 
-        screen
-          .classList
-          .remove(
-            "active"
-          );
+      screen.classList.remove(
+        "active"
+      );
 
-      }
-    );
-
+    });
 
   document
     .getElementById(id)
-    .classList
-    .add("active");
+    .classList.add("active");
 }
-
 
 
 function showFolders() {
 
-  currentFolderId =
-    null;
+  currentFolderId = null;
 
   renderFolders();
 
@@ -1531,7 +1188,6 @@ function showFolders() {
     "foldersScreen"
   );
 }
-
 
 
 /* ==============================
@@ -1545,68 +1201,46 @@ function renderFolders() {
       "folderList"
     );
 
-
   list.innerHTML = "";
 
-
-  if (
-    !data.folders.length
-  ) {
+  if (!data.folders.length) {
 
     list.innerHTML =
       '<div class="empty">フォルダがありません。<br>＋から作成できます。</div>';
 
     return;
-
   }
-
 
   data.folders.forEach(
     folder => {
 
       const row =
-        document
-          .createElement(
-            "div"
-          );
-
+        document.createElement(
+          "div"
+        );
 
       row.className =
         "folder";
 
-
       row.innerHTML = `
-
-        <div
-          class="folder-icon"
-        >
+        <div class="folder-icon">
           ▱
         </div>
 
-        <div
-          class="folder-info"
-        >
+        <div class="folder-info">
 
-          <div
-            class="folder-name"
-          ></div>
+          <div class="folder-name"></div>
 
-          <div
-            class="folder-count"
-          >
+          <div class="folder-count">
             ${folder.items.length}件
           </div>
 
         </div>
 
-        <div
-          class="chevron"
-        >
+        <div class="chevron">
           ›
         </div>
-
       `;
-
 
       row
         .querySelector(
@@ -1615,59 +1249,37 @@ function renderFolders() {
         .textContent =
           folder.name;
 
-
       row.onclick =
-        () => {
-
+        () =>
           openFolder(
             folder.id
           );
 
-        };
-
-
       list.appendChild(
         row
       );
-
     }
   );
-
 }
-
 
 
 function addFolder() {
 
   const name =
-    prompt(
-      "フォルダ名"
-    );
-
+    prompt("フォルダ名");
 
   if (
     !name ||
     !name.trim()
   ) {
-
     return;
-
   }
 
-
   data.folders.push({
-
-    id:
-      makeId(),
-
-    name:
-      name.trim(),
-
-    items:
-      []
-
+    id: makeId(),
+    name: name.trim(),
+    items: []
   });
-
 
   saveData();
 
@@ -1675,20 +1287,14 @@ function addFolder() {
 }
 
 
-
 function openFolder(id) {
 
-  currentFolderId =
-    id;
-
+  currentFolderId = id;
 
   const folder =
     getCurrentFolder();
 
-
-  if (!folder)
-    return;
-
+  if (!folder) return;
 
   document
     .getElementById(
@@ -1697,17 +1303,13 @@ function openFolder(id) {
     .textContent =
       folder.name;
 
-
   document
     .getElementById(
       "search"
     )
-    .value =
-      "";
-
+    .value = "";
 
   renderDanmaku();
-
 
   showScreen(
     "listScreen"
@@ -1715,78 +1317,51 @@ function openFolder(id) {
 }
 
 
-
 function renameFolder() {
 
   const folder =
     getCurrentFolder();
 
-
-  if (!folder)
-    return;
-
+  if (!folder) return;
 
   const action =
     prompt(
-
       "フォルダ名を変更できます。\n削除する場合は「削除」と入力してください。",
-
       folder.name
-
     );
 
-
-  if (
-    action === null
-  ) {
-
+  if (action === null) {
     return;
-
   }
 
-
-  if (
-    action === "削除"
-  ) {
+  if (action === "削除") {
 
     if (
       !confirm(
         "このフォルダと中の弾幕を削除しますか？"
       )
     ) {
-
       return;
-
     }
-
 
     data.folders =
       data.folders.filter(
-        f =>
-          f.id !==
-          folder.id
+        f => f.id !== folder.id
       );
-
 
     saveData();
 
     showFolders();
 
     return;
-
   }
 
-
-  if (
-    action.trim()
-  ) {
+  if (action.trim()) {
 
     folder.name =
       action.trim();
 
-
     saveData();
-
 
     document
       .getElementById(
@@ -1794,23 +1369,16 @@ function renameFolder() {
       )
       .textContent =
         folder.name;
-
   }
-
 }
-
 
 
 function getCurrentFolder() {
 
   return data.folders.find(
-    f =>
-      f.id ===
-      currentFolderId
+    f => f.id === currentFolderId
   );
-
 }
-
 
 
 /* ==============================
@@ -1822,92 +1390,66 @@ function renderDanmaku() {
   const folder =
     getCurrentFolder();
 
-
-  if (!folder)
-    return;
-
+  if (!folder) return;
 
   const container =
-    document
-      .getElementById(
-        "danmakuList"
-      );
-
+    document.getElementById(
+      "danmakuList"
+    );
 
   const query =
     document
-      .getElementById(
-        "search"
-      )
+      .getElementById("search")
       .value
       .toLowerCase();
 
-
-  container.innerHTML =
-    "";
-
+  container.innerHTML = "";
 
   const items =
     folder.items.filter(
       item =>
         item.text
           .toLowerCase()
-          .includes(
-            query
-          )
+          .includes(query)
     );
 
-
-  if (
-    !items.length
-  ) {
+  if (!items.length) {
 
     container.innerHTML =
       '<div class="empty">弾幕がありません。<br>＋から追加できます。</div>';
 
     return;
-
   }
-
 
   items.forEach(
     item => {
 
       const card =
-        document
-          .createElement(
-            "div"
-          );
-
+        document.createElement(
+          "div"
+        );
 
       card.className =
         "danmaku-card";
 
-
       const content =
-        document
-          .createElement(
-            "div"
-          );
-
+        document.createElement(
+          "div"
+        );
 
       content.innerHTML =
         parseDanmaku(
           item.text
         );
 
-
       card.appendChild(
         content
       );
 
-
       const more =
-        document
-          .createElement(
-            "button"
-          );
-
+        document.createElement(
+          "button"
+        );
 
       more.className =
         "more";
@@ -1915,44 +1457,32 @@ function renderDanmaku() {
       more.textContent =
         "•••";
 
-
       more.onclick =
         event => {
 
-          event
-            .stopPropagation();
+          event.stopPropagation();
 
           openListMenu(
             item.id
           );
-
         };
-
 
       card.appendChild(
         more
       );
 
-
       card.onclick =
-        () => {
-
+        () =>
           editDanmaku(
             item.id
           );
 
-        };
-
-
       container.appendChild(
         card
       );
-
     }
   );
-
 }
-
 
 
 function newDanmaku() {
@@ -1960,39 +1490,26 @@ function newDanmaku() {
   const folder =
     getCurrentFolder();
 
-
-  if (!folder)
-    return;
-
+  if (!folder) return;
 
   const item = {
-
-    id:
-      makeId(),
-
-    text:
-      ""
-
+    id: makeId(),
+    text: ""
   };
-
 
   folder.items.push(
     item
   );
 
-
   currentDanmakuId =
     item.id;
 
-
   saveData();
-
 
   openEditor(
     item
   );
 }
-
 
 
 function editDanmaku(id) {
@@ -2000,31 +1517,22 @@ function editDanmaku(id) {
   const folder =
     getCurrentFolder();
 
-
-  if (!folder)
-    return;
-
+  if (!folder) return;
 
   const item =
     folder.items.find(
-      i =>
-        i.id === id
+      i => i.id === id
     );
 
-
-  if (!item)
-    return;
-
+  if (!item) return;
 
   currentDanmakuId =
     id;
-
 
   openEditor(
     item
   );
 }
-
 
 
 function openEditor(item) {
@@ -2036,19 +1544,15 @@ function openEditor(item) {
     .value =
       item.text;
 
-
   updatePreview();
-
 
   showScreen(
     "editScreen"
   );
 
-
   setEditMode(
     "edit"
   );
-
 
   setTimeout(
     () => {
@@ -2060,12 +1564,9 @@ function openEditor(item) {
         .focus();
 
     },
-
     100
   );
-
 }
-
 
 
 function editorChanged() {
@@ -2073,10 +1574,7 @@ function editorChanged() {
   const folder =
     getCurrentFolder();
 
-
-  if (!folder)
-    return;
-
+  if (!folder) return;
 
   const item =
     folder.items.find(
@@ -2085,10 +1583,7 @@ function editorChanged() {
         currentDanmakuId
     );
 
-
-  if (!item)
-    return;
-
+  if (!item) return;
 
   item.text =
     document
@@ -2097,12 +1592,10 @@ function editorChanged() {
       )
       .value;
 
-
   saveData();
 
   updatePreview();
 }
-
 
 
 function closeEditor() {
@@ -2110,27 +1603,21 @@ function closeEditor() {
   const folder =
     getCurrentFolder();
 
-
   if (folder) {
 
     folder.items =
       folder.items.filter(
         item =>
-          item.text.trim()
-          !== ""
+          item.text.trim() !== ""
       );
-
 
     saveData();
 
     renderDanmaku();
-
   }
-
 
   currentDanmakuId =
     null;
-
 
   showScreen(
     "listScreen"
@@ -2138,27 +1625,20 @@ function closeEditor() {
 }
 
 
-
 function deleteCurrent() {
 
   const folder =
     getCurrentFolder();
 
-
-  if (!folder)
-    return;
-
+  if (!folder) return;
 
   if (
     !confirm(
       "この弾幕を削除しますか？"
     )
   ) {
-
     return;
-
   }
-
 
   folder.items =
     folder.items.filter(
@@ -2167,22 +1647,17 @@ function deleteCurrent() {
         currentDanmakuId
     );
 
-
   saveData();
-
 
   currentDanmakuId =
     null;
 
-
   renderDanmaku();
-
 
   showScreen(
     "listScreen"
   );
 }
-
 
 
 /* ==============================
@@ -2192,33 +1667,17 @@ function deleteCurrent() {
 function escapeHTML(text) {
 
   return text
-
-    .replace(
-      /&/g,
-      "&amp;"
-    )
-
-    .replace(
-      /</g,
-      "&lt;"
-    )
-
-    .replace(
-      />/g,
-      "&gt;"
-    );
-
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 }
-
 
 
 function validColor(color) {
 
   return /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/
     .test(color);
-
 }
-
 
 
 function parseDanmaku(source) {
@@ -2229,9 +1688,7 @@ function parseDanmaku(source) {
     );
 
 
-  /*
-    color
-  */
+  /* color */
 
   text =
     text.replace(
@@ -2245,34 +1702,18 @@ function parseDanmaku(source) {
       ) => {
 
         if (
-          !validColor(
-            color
-          )
+          !validColor(color)
         ) {
-
           return content;
-
         }
 
-
-        return (
-          `<span style="color:${color}">`
-          +
-          `${content}`
-          +
-          `</span>`
-        );
-
+        return `<span style="color:${color}">${content}</span>`;
       }
-
     );
 
 
-  /*
-    size
-
-    TOPIA表示に近づけるため
-    タグ数値の80%
+  /* size
+     TOPIAに近づけるため 0.75倍
   */
 
   text =
@@ -2286,39 +1727,21 @@ function parseDanmaku(source) {
         content
       ) => {
 
-
         const number =
           Math.max(
-
             1,
-
             Math.min(
-
               Number(size),
-
               100
-
             )
-
           );
 
-
-        return (
-          `<span style="font-size:${number * 0.8}px">`
-          +
-          `${content}`
-          +
-          `</span>`
-        );
-
+        return `<span style="font-size:${number * 0.75}px">${content}</span>`;
       }
-
     );
 
 
-  /*
-    italic
-  */
+  /* italic */
 
   text =
     text.replace(
@@ -2326,13 +1749,10 @@ function parseDanmaku(source) {
       /&lt;i&gt;([\s\S]*?)&lt;\/i&gt;/gi,
 
       "<i>$1</i>"
-
     );
 
 
-  /*
-    改行
-  */
+  /* 改行 */
 
   text =
     text.replace(
@@ -2340,13 +1760,10 @@ function parseDanmaku(source) {
       /\\ua|\r\n|\r|\n/g,
 
       "<br>"
-
     );
-
 
   return text;
 }
-
 
 
 function updatePreview() {
@@ -2358,7 +1775,6 @@ function updatePreview() {
       )
       .value;
 
-
   document
     .getElementById(
       "preview"
@@ -2367,9 +1783,7 @@ function updatePreview() {
       parseDanmaku(
         text
       );
-
 }
-
 
 
 /* ==============================
@@ -2379,19 +1793,15 @@ function updatePreview() {
 function prepareCopy(text) {
 
   return text
-
     .replace(
       /\\ua\r?\n/g,
       "\n"
     )
-
     .replace(
       /\r\n|\r|\n/g,
       "\\ua"
     );
-
 }
-
 
 
 async function copyText(text) {
@@ -2401,7 +1811,6 @@ async function copyText(text) {
       text
     );
 
-
   try {
 
     await navigator
@@ -2410,51 +1819,38 @@ async function copyText(text) {
         output
       );
 
-
     showToast(
       "コピーしました"
     );
 
   } catch (e) {
 
-
     const area =
-      document
-        .createElement(
-          "textarea"
-        );
-
+      document.createElement(
+        "textarea"
+      );
 
     area.value =
       output;
-
 
     document.body
       .appendChild(
         area
       );
 
-
     area.select();
 
-
-    document
-      .execCommand(
-        "copy"
-      );
-
+    document.execCommand(
+      "copy"
+    );
 
     area.remove();
-
 
     showToast(
       "コピーしました"
     );
-
   }
-
 }
-
 
 
 function copyCurrent() {
@@ -2466,13 +1862,10 @@ function copyCurrent() {
       )
       .value;
 
-
   copyText(
     text
   );
-
 }
-
 
 
 /* ==============================
@@ -2482,41 +1875,31 @@ function copyCurrent() {
 function syncBackgroundControls() {
 
   const color =
-    data.settings
-      .backgroundColor
+    data.settings.backgroundColor
     ||
     "#000000";
 
-
   const picker =
-    document
-      .getElementById(
-        "backgroundPicker"
-      );
-
+    document.getElementById(
+      "backgroundPicker"
+    );
 
   const code =
-    document
-      .getElementById(
-        "backgroundCode"
-      );
-
+    document.getElementById(
+      "backgroundCode"
+    );
 
   if (
     /^#[0-9a-fA-F]{6}$/
       .test(color)
   ) {
-
     picker.value =
       color;
-
   }
-
 
   code.value =
     color;
 }
-
 
 
 function pickerChanged() {
@@ -2528,7 +1911,6 @@ function pickerChanged() {
       )
       .value;
 
-
   document
     .getElementById(
       "backgroundCode"
@@ -2536,44 +1918,32 @@ function pickerChanged() {
     .value =
       color;
 
-
-  data.settings
-    .backgroundColor =
-      color;
-
+  data.settings.backgroundColor =
+    color;
 
   saveData();
 }
 
 
-
 function codeChanged() {
 
   const input =
-    document
-      .getElementById(
-        "backgroundCode"
-      );
-
+    document.getElementById(
+      "backgroundCode"
+    );
 
   const color =
     input.value.trim();
-
 
   if (
     !/^#[0-9a-fA-F]{6}$/
       .test(color)
   ) {
-
     return;
-
   }
 
-
-  data.settings
-    .backgroundColor =
-      color;
-
+  data.settings.backgroundColor =
+    color;
 
   document
     .getElementById(
@@ -2582,50 +1952,38 @@ function codeChanged() {
     .value =
       color;
 
-
   saveData();
 }
 
 
-
 /* ==============================
-   背景画像
+   写真選択・圧縮
 ============================== */
 
 function imageChanged(event) {
 
+  const input =
+    event.target;
+
   const file =
-    event.target.files[0];
+    input.files[0];
 
-
-  if (!file)
-    return;
-
+  if (!file) return;
 
   const reader =
     new FileReader();
 
-
   reader.onload =
     e => {
-
 
       const img =
         new Image();
 
-
       img.onload =
         () => {
 
-
-          /*
-            localStorageに
-            入れやすいよう縮小
-          */
-
           const maxSize =
             1500;
-
 
           let width =
             img.width;
@@ -2635,54 +1993,39 @@ function imageChanged(event) {
 
 
           if (
-            width >
-            height
-            &&
-            width >
-            maxSize
+            width > height &&
+            width > maxSize
           ) {
 
             height =
               Math.round(
                 height *
-                (
-                  maxSize /
-                  width
-                )
+                (maxSize / width)
               );
 
             width =
               maxSize;
 
           } else if (
-            height >=
-            width
-            &&
-            height >
-            maxSize
+            height >= width &&
+            height > maxSize
           ) {
 
             width =
               Math.round(
                 width *
-                (
-                  maxSize /
-                  height
-                )
+                (maxSize / height)
               );
 
             height =
               maxSize;
-
           }
 
 
           const canvas =
-            document
-              .createElement(
-                "canvas"
-              );
-
+            document.createElement(
+              "canvas"
+            );
 
           canvas.width =
             width;
@@ -2692,97 +2035,39 @@ function imageChanged(event) {
 
 
           const ctx =
-            canvas
-              .getContext(
-                "2d"
-              );
+            canvas.getContext(
+              "2d"
+            );
 
 
           ctx.drawImage(
-
             img,
-
             0,
             0,
-
             width,
             height
-
           );
 
 
           const compressed =
-            canvas
-              .toDataURL(
-                "image/jpeg",
-                0.85
-              );
+            canvas.toDataURL(
+              "image/jpeg",
+              0.82
+            );
 
 
-          /*
-            保存前の画像を保持
-            保存失敗したら元に戻す
-          */
-
-          const oldImage =
-            data.settings
-              .backgroundImage;
+          data.settings.backgroundImage =
+            compressed;
 
 
-          data.settings
-            .backgroundImage =
-              compressed;
+          saveData();
 
-
-          const saved =
-            saveData();
-
-
-          if (!saved) {
-
-            data.settings
-              .backgroundImage =
-                oldImage;
-
-            applyBackground();
-
-            return;
-          }
-
-
-          /*
-            写真そのものの
-            縦横比をプレビューに使用
-          */
-
-          const previewMode =
-            document
-              .getElementById(
-                "previewMode"
-              );
-
-
-          if (previewMode) {
-
-            previewMode
-              .style
-              .aspectRatio =
-                `${width} / ${height}`;
-
-          }
-
+          applyBackground();
 
           closeBackgroundMenu();
 
-
-          /*
-            同じ写真を
-            選び直せるようにする
-          */
-
-          event.target.value =
+          input.value =
             "";
-
         };
 
 
@@ -2790,18 +2075,16 @@ function imageChanged(event) {
         () => {
 
           showToast(
-            "この画像を読み込めませんでした"
+            "この写真は読み込めませんでした"
           );
 
-          event.target.value =
+          input.value =
             "";
-
         };
 
 
       img.src =
         e.target.result;
-
     };
 
 
@@ -2809,151 +2092,83 @@ function imageChanged(event) {
     () => {
 
       showToast(
-        "画像の読み込みに失敗しました"
+        "写真の読み込みに失敗しました"
       );
 
-      event.target.value =
+      input.value =
         "";
-
     };
 
 
   reader.readAsDataURL(
     file
   );
-
 }
-
 
 
 function removeBackgroundImage() {
 
-  data.settings
-    .backgroundImage =
-      "";
-
+  data.settings.backgroundImage =
+    "";
 
   const input =
-    document
-      .getElementById(
-        "backgroundImage"
-      );
-
+    document.getElementById(
+      "backgroundImage"
+    );
 
   if (input) {
-
-    input.value =
-      "";
-
+    input.value = "";
   }
-
-
-  const previewMode =
-    document
-      .getElementById(
-        "previewMode"
-      );
-
-
-  if (previewMode) {
-
-    previewMode
-      .style
-      .aspectRatio =
-        "9 / 19.5";
-
-  }
-
 
   saveData();
+
+  applyBackground();
 
   closeBackgroundMenu();
 }
 
 
-
-/* ==============================
-   背景反映
-============================== */
-
 function applyBackground() {
 
   const color =
-    data.settings
-      .backgroundColor
+    data.settings.backgroundColor
     ||
     "#000000";
 
-
   const previewMode =
-    document
-      .getElementById(
-        "previewMode"
-      );
+    document.getElementById(
+      "previewMode"
+    );
+
+  if (!previewMode) return;
 
 
-  if (!previewMode)
-    return;
-
-
-  previewMode
-    .style
-    .backgroundColor =
-      color;
+  previewMode.style.backgroundColor =
+    color;
 
 
   if (
-    data.settings
-      .backgroundImage
+    data.settings.backgroundImage
   ) {
 
-    previewMode
-      .style
-      .backgroundImage =
-        `url("${data.settings.backgroundImage}")`;
+    previewMode.style.backgroundImage =
+      `url("${data.settings.backgroundImage}")`;
 
+    previewMode.style.backgroundSize =
+      "100% 100%";
 
-    /*
-      保存済み画像から
-      縦横比を復元
-    */
+    previewMode.style.backgroundPosition =
+      "center";
 
-    const img =
-      new Image();
-
-
-    img.onload =
-      () => {
-
-        previewMode
-          .style
-          .aspectRatio =
-            `${img.width} / ${img.height}`;
-
-      };
-
-
-    img.src =
-      data.settings
-        .backgroundImage;
+    previewMode.style.backgroundRepeat =
+      "no-repeat";
 
   } else {
 
-    previewMode
-      .style
-      .backgroundImage =
-        "none";
-
-
-    previewMode
-      .style
-      .aspectRatio =
-        "9 / 19.5";
-
+    previewMode.style.backgroundImage =
+      "none";
   }
-
 }
-
 
 
 /* ==============================
@@ -2963,51 +2178,36 @@ function applyBackground() {
 let toastTimer;
 
 
-
 function showToast(message) {
 
   const toast =
-    document
-      .getElementById(
-        "toast"
-      );
-
+    document.getElementById(
+      "toast"
+    );
 
   toast.textContent =
     message;
 
-
-  toast
-    .classList
-    .add(
-      "show"
-    );
-
+  toast.classList.add(
+    "show"
+  );
 
   clearTimeout(
     toastTimer
   );
 
-
   toastTimer =
     setTimeout(
-
       () => {
 
-        toast
-          .classList
-          .remove(
-            "show"
-          );
+        toast.classList.remove(
+          "show"
+        );
 
       },
-
       1300
-
     );
-
 }
-
 
 
 /* ==============================
