@@ -380,6 +380,15 @@ button, input, textarea {
 .edit-menu-sheet button.danger {
   color: #ff5a52;
 }
+  .danmaku-card,
+.danmaku-card * {
+  font-size: 14px !important;
+}
+
+.preview,
+.preview * {
+  font-size: 14px !important;
+}
 </style>
 </head>
 
@@ -468,7 +477,6 @@ button, input, textarea {
   <div class="edit-menu-sheet" onclick="event.stopPropagation()">
     <button onclick="copyCurrent(); closeEditMenu()">コピー</button>
     <button class="danger" onclick="deleteCurrent(); closeEditMenu()">削除</button>
-    <button onclick="closeEditMenu()">キャンセル</button>
   </div>
 </div>
 
