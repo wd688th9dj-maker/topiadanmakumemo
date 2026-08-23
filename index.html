@@ -423,6 +423,12 @@ button, input, textarea {
   </main>
 
   <button class="fab" onclick="newDanmaku()">＋</button>
+  <div id="listMenu" class="edit-menu" onclick="closeListMenu()">
+  <div class="edit-menu-sheet" onclick="event.stopPropagation()">
+    <button onclick="copyListItem()">コピー</button>
+    <button class="danger" onclick="deleteListItem()">削除</button>
+  </div>
+</div>
 </section>
 
 
