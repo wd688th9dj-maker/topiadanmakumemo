@@ -385,10 +385,7 @@ button, input, textarea {
   font-size: 14px !important;
 }
 
-.preview,
-.preview * {
-  font-size: 14px !important;
-}
+
 </style>
 </head>
 
@@ -1069,7 +1066,7 @@ function parseDanmaku(source) {
       const number =
         Math.max(1, Math.min(Number(size), 100));
 
-      return `<span style="font-size:${number}px">${content}</span>`;
+      return `<span style="font-size:${number * 0.8}px">${content}</span>`;
     }
   );
 
