@@ -62,7 +62,9 @@ body.detail-open .bottom-nav{display:none}
 .search{width:100%;border:0;border-radius:11px;padding:11px 13px;background:var(--panel2);color:#fff;font-size:16px;outline:none}
 .list-tools{display:flex;gap:8px;margin-bottom:12px}
 .list-tools .search{flex:1}
-.sort-button{border:1px solid var(--border);border-radius:11px;background:var(--panel2);color:#fff;padding:0 12px;white-space:nowrap}
+.sort-row{display:flex;justify-content:flex-end;gap:7px;margin:0 0 12px}
+.sort-button{border:1px solid var(--border);border-radius:11px;background:var(--panel2);color:#fff;padding:10px 12px;white-space:nowrap}
+.sort-direction{width:42px;border:1px solid var(--border);border-radius:11px;background:var(--panel2);color:var(--accent);font-size:17px;padding:8px 0}
 .folder-filter{width:100%;margin-bottom:10px;border:1px solid var(--border);border-radius:11px;background:var(--panel2);color:#fff;padding:10px 12px}
 
 /* danmaku */
@@ -135,7 +137,11 @@ body.detail-open .selection-bar{bottom:0}
     <button class="header-button" onclick="openFolderGlobalMenu()">•••</button>
   </header>
   <main class="content">
-    <div class="hint">長押ししてドラッグすると並べ替えできます</div>
+    <div class="sort-row">
+      <button id="folderSortButton" class="sort-button" onclick="openSortMenu('folders')">カスタム順</button>
+      <button id="folderSortDir" class="sort-direction" onclick="toggleSortDirection('folders')">△</button>
+    </div>
+    <div class="hint">カスタム順では長押ししてドラッグで並べ替えできます</div>
     <div id="folderList" class="folder-list"></div>
     <button class="new-folder-card" onclick="addFolder()">＋ 新しいフォルダ</button>
   </main>
@@ -152,6 +158,10 @@ body.detail-open .selection-bar{bottom:0}
     <div class="list-tools">
       <input id="search" class="search" type="search" placeholder="検索" oninput="renderDanmaku()">
     </div>
+    <div class="sort-row">
+      <button id="detailSortButton" class="sort-button" onclick="openSortMenu('folder')">カスタム順</button>
+      <button id="detailSortDir" class="sort-direction" onclick="toggleSortDirection('folder')">△</button>
+    </div>
     <div id="danmakuList" class="danmaku-list"></div>
     <button class="new-folder-card" onclick="newDanmaku()">＋ 新しい弾幕</button>
   </main>
@@ -167,7 +177,10 @@ body.detail-open .selection-bar{bottom:0}
   <main class="content">
     <div class="list-tools">
       <input id="allSearch" class="search" type="search" placeholder="本文・よみで検索" oninput="renderAllDanmaku()">
-      <button id="sortButton" class="sort-button" onclick="openSortMenu()">名前順</button>
+    </div>
+    <div class="sort-row">
+      <button id="sortButton" class="sort-button" onclick="openSortMenu('all')">カスタム順</button>
+      <button id="allSortDir" class="sort-direction" onclick="toggleSortDirection('all')">△</button>
     </div>
     <select id="folderFilter" class="folder-filter" onchange="renderAllDanmaku()"></select>
     <div id="allDanmakuList" class="danmaku-list"></div>
@@ -194,7 +207,7 @@ body.detail-open .selection-bar{bottom:0}
     </div>
     <div class="settings-card">
       <div class="settings-title">並び替え</div>
-      <div class="settings-sub">フォルダは長押しドラッグで自由に並べ替えできます。弾幕一覧は表示順を切り替えられます。</div>
+      <div class="settings-sub">フォルダ一覧・各フォルダ内・全弾幕一覧は、それぞれ独立した表示順と昇順／降順を記憶します。カスタム順では長押しドラッグで並べ替えできます。</div>
     </div>
   </main>
 </section>
@@ -295,11 +308,7 @@ body.detail-open .selection-bar{bottom:0}
 
 <div id="sortMenu" class="sheet" onclick="closeSheet('sortMenu')"><div class="sheet-panel" onclick="event.stopPropagation()">
   <div class="sheet-title">表示順</div>
-  <button class="sheet-button" onclick="setAllSort('name')">名前順</button>
-  <button class="sheet-button" onclick="setAllSort('new')">新しい順</button>
-  <button class="sheet-button" onclick="setAllSort('old')">古い順</button>
-  <button class="sheet-button" onclick="setAllSort('folder')">フォルダ順</button>
-  <button class="sheet-button" onclick="setAllSort('manual')">登録順</button>
+  <div id="sortMenuButtons"></div>
 </div></div>
 
 <div id="folderPicker" class="sheet" onclick="closeSheet('folderPicker')"><div class="sheet-panel" onclick="event.stopPropagation()">
@@ -336,7 +345,7 @@ let currentDanmakuId=null;
 let currentMainView="folders";
 let currentItemMenuRef=null;
 let currentFolderMenuId=null;
-let allSort=data.ui?.allSort||"name";
+let sortContext="all";
 let folderSelectionMode=false;
 let selectedFolderIds=new Set();
 let itemSelectionMode=false;
@@ -347,28 +356,98 @@ let previewBackgroundColor="#000000";
 let previewBackgroundImage="";
 let toastTimer;
 let suppressFolderClick=false;
+let suppressItemClick=false;
 
-function defaultData(){return{folders:[{id:makeId(),name:"弾幕",items:[]}],ui:{lastView:"folders",lastFolderId:null,allSort:"name"}}}
+function defaultData(){
+  const folderId=makeId();
+  return{
+    folders:[{id:folderId,name:"弾幕",items:[],createdAt:Date.now()}],
+    ui:{
+      lastView:"folders",
+      lastFolderId:null,
+      folderSort:{mode:"custom",dir:"asc"},
+      folderCustomOrder:[folderId],
+      folderItemSorts:{},
+      folderItemCustomOrders:{},
+      allSort:{mode:"custom",dir:"asc"},
+      allCustomOrder:[]
+    }
+  }
+}
 function makeId(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}
 function normalizeData(parsed){
   if(!parsed||!Array.isArray(parsed.folders))return defaultData();
-  parsed.folders.forEach(folder=>{
+
+  const baseTime=Date.now()-parsed.folders.length*1000;
+  parsed.folders.forEach((folder,folderIndex)=>{
     if(!folder.id)folder.id=makeId();
     if(!folder.name)folder.name="フォルダ";
+    if(!folder.createdAt)folder.createdAt=baseTime+folderIndex*1000;
     if(!Array.isArray(folder.items))folder.items=[];
     folder.items.forEach((item,index)=>{
       if(!item.id)item.id=makeId();
       if(typeof item.text!=="string")item.text="";
       if(typeof item.reading!=="string")item.reading="";
-      if(!item.createdAt)item.createdAt=Date.now()+index;
+      if(!item.createdAt)item.createdAt=folder.createdAt+index+1;
     });
   });
+
   parsed.ui=parsed.ui||{};
   parsed.ui.lastView=parsed.ui.lastView||"folders";
   parsed.ui.lastFolderId=parsed.ui.lastFolderId||null;
-  parsed.ui.allSort=parsed.ui.allSort||"name";
+
+  const oldAll=parsed.ui.allSort;
+  if(!oldAll||typeof oldAll==="string"){
+    const legacy={
+      name:{mode:"reading",dir:"asc"},
+      new:{mode:"registered",dir:"desc"},
+      old:{mode:"registered",dir:"asc"},
+      folder:{mode:"folder",dir:"asc"},
+      manual:{mode:"custom",dir:"asc"}
+    };
+    parsed.ui.allSort=legacy[oldAll]||{mode:"custom",dir:"asc"};
+  }
+
+  parsed.ui.folderSort=normalizeSortState(parsed.ui.folderSort,"custom");
+  parsed.ui.allSort=normalizeSortState(parsed.ui.allSort,"custom");
+  parsed.ui.folderCustomOrder=mergeOrder(parsed.ui.folderCustomOrder,parsed.folders.map(f=>f.id));
+  parsed.ui.folderItemSorts=parsed.ui.folderItemSorts||{};
+  parsed.ui.folderItemCustomOrders=parsed.ui.folderItemCustomOrders||{};
+
+  parsed.folders.forEach(folder=>{
+    parsed.ui.folderItemSorts[folder.id]=normalizeSortState(parsed.ui.folderItemSorts[folder.id],"custom");
+    parsed.ui.folderItemCustomOrders[folder.id]=mergeOrder(
+      parsed.ui.folderItemCustomOrders[folder.id],
+      folder.items.map(i=>i.id)
+    );
+  });
+
+  parsed.ui.allCustomOrder=mergeOrder(
+    parsed.ui.allCustomOrder,
+    allItemKeys(parsed.folders)
+  );
+
   if(parsed.settings)delete parsed.settings.backgroundImage;
   return parsed;
+}
+function normalizeSortState(state,fallbackMode){
+  if(!state||typeof state!=="object")return{mode:fallbackMode,dir:"asc"};
+  return{
+    mode:state.mode||fallbackMode,
+    dir:state.dir==="desc"?"desc":"asc"
+  };
+}
+function mergeOrder(saved,current){
+  const valid=new Set(current);
+  const out=Array.isArray(saved)?saved.filter(x=>valid.has(x)):[];
+  const seen=new Set(out);
+  current.forEach(x=>{if(!seen.has(x)){out.push(x);seen.add(x)}});
+  return out;
+}
+function allItemKeys(folders=data.folders){
+  const keys=[];
+  folders.forEach(f=>f.items.forEach(i=>keys.push(keyFor(f.id,i.id))));
+  return keys;
 }
 function loadData(){
   try{
@@ -391,11 +470,132 @@ function saveData(){
   try{localStorage.setItem(STORAGE_KEY,JSON.stringify(data));return true}
   catch(e){showToast("保存容量が足りません");return false}
 }
-function saveUi(){data.ui=data.ui||{};data.ui.allSort=allSort;saveData()}
 function getCurrentFolder(){return data.folders.find(f=>f.id===currentFolderId)}
 function findItem(folderId,itemId){const f=data.folders.find(x=>x.id===folderId);if(!f)return null;const item=f.items.find(x=>x.id===itemId);return item?{folder:f,item}:null}
 function keyFor(folderId,itemId){return folderId+":"+itemId}
 function splitKey(key){const i=key.indexOf(":");return[key.slice(0,i),key.slice(i+1)]}
+
+function ensureSortOrders(){
+  data.ui=data.ui||{};
+  data.ui.folderSort=normalizeSortState(data.ui.folderSort,"custom");
+  data.ui.allSort=normalizeSortState(data.ui.allSort,"custom");
+  data.ui.folderCustomOrder=mergeOrder(data.ui.folderCustomOrder,data.folders.map(f=>f.id));
+  data.ui.folderItemSorts=data.ui.folderItemSorts||{};
+  data.ui.folderItemCustomOrders=data.ui.folderItemCustomOrders||{};
+  data.folders.forEach(f=>{
+    data.ui.folderItemSorts[f.id]=normalizeSortState(data.ui.folderItemSorts[f.id],"custom");
+    data.ui.folderItemCustomOrders[f.id]=mergeOrder(data.ui.folderItemCustomOrders[f.id],f.items.map(i=>i.id));
+  });
+  data.ui.allCustomOrder=mergeOrder(data.ui.allCustomOrder,allItemKeys());
+}
+function getSortState(context){
+  ensureSortOrders();
+  if(context==="folders")return data.ui.folderSort;
+  if(context==="folder"){
+    const id=currentFolderId;
+    if(!id)return{mode:"custom",dir:"asc"};
+    return data.ui.folderItemSorts[id];
+  }
+  return data.ui.allSort;
+}
+function sortModeLabel(mode){
+  const labels={custom:"カスタム順",reading:"よみ順",registered:"登録順",folder:"フォルダ順",name:"名前順"};
+  return labels[mode]||"カスタム順";
+}
+function updateSortControls(){
+  const fs=getSortState("folders");
+  const fbtn=document.getElementById("folderSortButton"),fdir=document.getElementById("folderSortDir");
+  if(fbtn)fbtn.textContent=sortModeLabel(fs.mode);
+  if(fdir)fdir.textContent=fs.dir==="asc"?"△":"▽";
+
+  if(currentFolderId){
+    const ds=getSortState("folder");
+    const dbtn=document.getElementById("detailSortButton"),ddir=document.getElementById("detailSortDir");
+    if(dbtn)dbtn.textContent=sortModeLabel(ds.mode);
+    if(ddir)ddir.textContent=ds.dir==="asc"?"△":"▽";
+  }
+
+  const as=getSortState("all");
+  const abtn=document.getElementById("sortButton"),adir=document.getElementById("allSortDir");
+  if(abtn)abtn.textContent=sortModeLabel(as.mode);
+  if(adir)adir.textContent=as.dir==="asc"?"△":"▽";
+}
+function openSortMenu(context){
+  sortContext=context;
+  const box=document.getElementById("sortMenuButtons");
+  box.innerHTML="";
+  const modes=context==="folders"
+    ? [["custom","カスタム順"],["name","名前順"],["registered","登録順"]]
+    : context==="folder"
+      ? [["custom","カスタム順"],["reading","よみ順"],["registered","登録順"]]
+      : [["custom","カスタム順"],["reading","よみ順"],["registered","登録順"],["folder","フォルダ順"]];
+  const state=getSortState(context);
+  modes.forEach(([mode,label])=>{
+    const b=document.createElement("button");
+    b.className="sheet-button"+(state.mode===mode?" accent":"");
+    b.textContent=label;
+    b.onclick=()=>setSortMode(context,mode);
+    box.appendChild(b);
+  });
+  openSheet("sortMenu");
+}
+function setSortMode(context,mode){
+  const state=getSortState(context);
+  state.mode=mode;
+  saveData();
+  closeSheet("sortMenu");
+  renderSortedContext(context);
+}
+function toggleSortDirection(context){
+  const state=getSortState(context);
+  state.dir=state.dir==="asc"?"desc":"asc";
+  saveData();
+  renderSortedContext(context);
+}
+function renderSortedContext(context){
+  updateSortControls();
+  if(context==="folders")renderFolders();
+  else if(context==="folder")renderDanmaku();
+  else renderAllDanmaku();
+}
+function compareReadingItems(a,b){
+  const ka=getNameSortKey(a),kb=getNameSortKey(b);
+  if(ka.group!==kb.group)return ka.group-kb.group;
+  return ka.key.localeCompare(kb.key,"ja",{numeric:true,sensitivity:"base"});
+}
+function orderedFolders(){
+  ensureSortOrders();
+  const state=data.ui.folderSort;
+  const customIndex=new Map(data.ui.folderCustomOrder.map((id,i)=>[id,i]));
+  const arr=[...data.folders];
+  arr.sort((a,b)=>{
+    let v=0;
+    if(state.mode==="name")v=a.name.localeCompare(b.name,"ja",{numeric:true,sensitivity:"base"});
+    else if(state.mode==="registered")v=(a.createdAt||0)-(b.createdAt||0);
+    else v=(customIndex.get(a.id)??1e9)-(customIndex.get(b.id)??1e9);
+    return state.dir==="desc"?-v:v;
+  });
+  return arr;
+}
+function orderedFolderItems(folder){
+  ensureSortOrders();
+  const state=data.ui.folderItemSorts[folder.id];
+  const order=data.ui.folderItemCustomOrders[folder.id];
+  const customIndex=new Map(order.map((id,i)=>[id,i]));
+  const arr=[...folder.items];
+  arr.sort((a,b)=>{
+    let v=0;
+    if(state.mode==="reading")v=compareReadingItems(a,b);
+    else if(state.mode==="registered")v=(a.createdAt||0)-(b.createdAt||0);
+    else v=(customIndex.get(a.id)??1e9)-(customIndex.get(b.id)??1e9);
+    return state.dir==="desc"?-v:v;
+  });
+  return arr;
+}
+function itemCanonicalIndex(folderId,itemId){
+  ensureSortOrders();
+  return (data.ui.folderItemCustomOrders[folderId]||[]).indexOf(itemId);
+}
 
 function showScreen(id){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
@@ -406,20 +606,20 @@ function showScreen(id){
   if(id==="allScreen")document.getElementById("navAll").classList.add("active");
   if(id==="settingsScreen")document.getElementById("navSettings").classList.add("active");
 }
-function showFolders(){cancelSelections();currentMainView="folders";data.ui.lastView="folders";saveData();renderFolders();showScreen("foldersScreen")}
-function showAll(){cancelSelections();currentMainView="all";data.ui.lastView="all";saveData();refreshFolderFilter();renderAllDanmaku();showScreen("allScreen")}
+function showFolders(){cancelSelections();currentMainView="folders";data.ui.lastView="folders";saveData();renderFolders();updateSortControls();showScreen("foldersScreen")}
+function showAll(){cancelSelections();currentMainView="all";data.ui.lastView="all";saveData();refreshFolderFilter();renderAllDanmaku();updateSortControls();showScreen("allScreen")}
 function showSettings(){cancelSelections();currentMainView="settings";data.ui.lastView="settings";saveData();renderSettings();showScreen("settingsScreen")}
 function openFolder(id,remember=true){
   cancelSelections();
   const folder=data.folders.find(f=>f.id===id);if(!folder)return;
-  currentFolderId=id;document.getElementById("currentFolderName").textContent=folder.name;document.getElementById("search").value="";renderDanmaku();showScreen("listScreen");
+  currentFolderId=id;document.getElementById("currentFolderName").textContent=folder.name;document.getElementById("search").value="";renderDanmaku();updateSortControls();showScreen("listScreen");
   if(remember){data.ui.lastView="folder";data.ui.lastFolderId=id;saveData()}
 }
 
 function renderFolders(){
   const list=document.getElementById("folderList");list.innerHTML="";
   if(!data.folders.length){list.innerHTML='<div class="empty">フォルダがありません。<br>「新しいフォルダ」から作成できます。</div>';return}
-  data.folders.forEach(folder=>{
+  orderedFolders().forEach(folder=>{
     const card=document.createElement("div");card.className="folder-card"+(selectedFolderIds.has(folder.id)?" selected":"");card.dataset.folderId=folder.id;
     const selection=folderSelectionMode?'<div class="select-dot">✓</div>':'';
     card.innerHTML=`${selection}<div class="folder-icon-box">▱</div><div class="folder-main"><div class="folder-name"></div><div class="folder-count">${folder.items.length}件</div></div><button class="folder-more">•••</button>`;
@@ -438,6 +638,7 @@ function attachFolderLongPress(card){
   let timer=null,dragging=false,startX=0,startY=0;
 
   const activate=()=>{
+    if(getSortState("folders").mode!=="custom")return;
     dragging=true;
     suppressFolderClick=true;
     card.classList.add("dragging");
@@ -477,9 +678,11 @@ function attachFolderLongPress(card){
     if(!dragging)return;
     dragging=false;
     card.classList.remove("dragging");
-    const ids=[...document.querySelectorAll("#folderList .folder-card")].map(x=>x.dataset.folderId);
-    data.folders.sort((a,b)=>ids.indexOf(a.id)-ids.indexOf(b.id));
+    let ids=[...document.querySelectorAll("#folderList .folder-card")].map(x=>x.dataset.folderId);
+    if(getSortState("folders").dir==="desc")ids=ids.reverse();
+    data.ui.folderCustomOrder=mergeOrder(ids,data.folders.map(f=>f.id));
     saveData();
+    renderFolders();
     setTimeout(()=>{suppressFolderClick=false},300);
   };
 
@@ -487,9 +690,9 @@ function attachFolderLongPress(card){
   card.addEventListener("touchcancel",end);
   card.addEventListener("contextmenu",e=>e.preventDefault());
 }
-function addFolder(){const name=prompt("フォルダ名");if(!name||!name.trim())return;const folder={id:makeId(),name:name.trim(),items:[]};data.folders.push(folder);saveData();renderFolders();refreshFolderFilter()}
+function addFolder(){const name=prompt("フォルダ名");if(!name||!name.trim())return;const folder={id:makeId(),name:name.trim(),items:[],createdAt:Date.now()};data.folders.push(folder);ensureSortOrders();saveData();renderFolders();refreshFolderFilter()}
 function renameFolderById(id){const folder=data.folders.find(f=>f.id===id);if(!folder)return;const name=prompt("フォルダ名",folder.name);if(name&&name.trim()){folder.name=name.trim();saveData();renderFolders();refreshFolderFilter();if(currentFolderId===id)document.getElementById("currentFolderName").textContent=folder.name}}
-function duplicateFolderById(id){const folder=data.folders.find(f=>f.id===id);if(!folder)return;const copy={id:makeId(),name:uniqueFolderName(folder.name+" コピー"),items:folder.items.map(i=>({...i,id:makeId(),createdAt:Date.now()+Math.random()}))};data.folders.push(copy);saveData();renderFolders();refreshFolderFilter();showToast("フォルダを複製しました")}
+function duplicateFolderById(id){const folder=data.folders.find(f=>f.id===id);if(!folder)return;const copy={id:makeId(),name:uniqueFolderName(folder.name+" コピー"),items:folder.items.map(i=>({...i,id:makeId(),createdAt:Date.now()+Math.random()})),createdAt:Date.now()};data.folders.push(copy);ensureSortOrders();saveData();renderFolders();refreshFolderFilter();showToast("フォルダを複製しました")}
 function uniqueFolderName(base){let name=base,n=2;while(data.folders.some(f=>f.name===name)){name=`${base} ${n++}`}return name}
 function deleteFolderById(id){const f=data.folders.find(x=>x.id===id);if(!f)return;if(!confirm(`「${f.name}」と中の弾幕を削除しますか？`))return;data.folders=data.folders.filter(x=>x.id!==id);if(data.ui.lastFolderId===id){data.ui.lastFolderId=null;data.ui.lastView="folders"}saveData();renderFolders();refreshFolderFilter();if(currentFolderId===id)showFolders()}
 
@@ -507,29 +710,104 @@ function startFolderSelection(){folderSelectionMode=true;selectedFolderIds.clear
 function toggleFolderSelection(id){selectedFolderIds.has(id)?selectedFolderIds.delete(id):selectedFolderIds.add(id);renderFolders()}
 function cancelFolderSelection(){folderSelectionMode=false;selectedFolderIds.clear();document.getElementById("folderSelectionBar").classList.remove("show");renderFolders()}
 function shareSelectedFolders(){const folders=data.folders.filter(f=>selectedFolderIds.has(f.id));if(!folders.length)return showToast("フォルダを選択してください");sharePayload({type:"folders",folders:cloneFolders(folders)},"topia-folders.json");cancelFolderSelection()}
-function duplicateSelectedFolders(){const folders=data.folders.filter(f=>selectedFolderIds.has(f.id));if(!folders.length)return;folders.forEach(f=>{data.folders.push({id:makeId(),name:uniqueFolderName(f.name+" コピー"),items:f.items.map(i=>({...i,id:makeId(),createdAt:Date.now()+Math.random()}))})});saveData();cancelFolderSelection();renderFolders();refreshFolderFilter();showToast("複製しました")}
+function duplicateSelectedFolders(){const folders=data.folders.filter(f=>selectedFolderIds.has(f.id));if(!folders.length)return;folders.forEach(f=>{data.folders.push({id:makeId(),name:uniqueFolderName(f.name+" コピー"),items:f.items.map(i=>({...i,id:makeId(),createdAt:Date.now()+Math.random()})),createdAt:Date.now()})});saveData();cancelFolderSelection();renderFolders();refreshFolderFilter();showToast("複製しました")}
 function deleteSelectedFolders(){if(!selectedFolderIds.size)return;if(!confirm(`${selectedFolderIds.size}個のフォルダを削除しますか？`))return;data.folders=data.folders.filter(f=>!selectedFolderIds.has(f.id));saveData();cancelFolderSelection();refreshFolderFilter()}
 
 function renderDanmaku(){
   const folder=getCurrentFolder();if(!folder)return;
   const container=document.getElementById("danmakuList");const q=document.getElementById("search").value.trim().toLowerCase();container.innerHTML="";
-  const items=folder.items.filter(item=>matchesSearch(item,q));
+  const visibleIds=new Set(folder.items.filter(item=>matchesSearch(item,q)).map(i=>i.id));
+  const items=orderedFolderItems(folder).filter(item=>visibleIds.has(item.id));
+  updateSortControls();
   if(!items.length){container.innerHTML='<div class="empty">弾幕がありません。<br>＋から追加できます。</div>';return}
   items.forEach(item=>container.appendChild(createDanmakuCard(folder,item,"folder")));
 }
 function createDanmakuCard(folder,item,source){
-  const card=document.createElement("div");const key=keyFor(folder.id,item.id);card.className="danmaku-card"+(selectedItemKeys.has(key)?" selected":"");
+  const card=document.createElement("div");const key=keyFor(folder.id,item.id);card.className="danmaku-card"+(selectedItemKeys.has(key)?" selected":"");card.dataset.folderId=folder.id;card.dataset.itemId=item.id;card.dataset.itemKey=key;
   const selection=itemSelectionMode?'<div class="select-dot">✓</div>':'';
   const meta=source==="all"?`<div class="danmaku-meta"><span class="folder-chip"></span>${item.reading?'<span class="reading-chip"></span>':''}</div>`:"";
   card.innerHTML=`${selection}<div class="danmaku-body">${meta}<div class="danmaku-content"></div></div><button class="more">•••</button>`;
   card.querySelector(".danmaku-content").innerHTML=parseDanmaku(item.text);
   if(source==="all"){card.querySelector(".folder-chip").textContent=folder.name;if(item.reading)card.querySelector(".reading-chip").textContent="よみ: "+item.reading}
   card.querySelector(".more").onclick=e=>{e.stopPropagation();openItemMenu(folder.id,item.id)};
-  card.onclick=()=>{if(itemSelectionMode){toggleItemSelection(folder.id,item.id);return}openItemFromAnywhere(folder.id,item.id)};
+  card.onclick=()=>{if(suppressItemClick){suppressItemClick=false;return}if(itemSelectionMode){toggleItemSelection(folder.id,item.id);return}openItemFromAnywhere(folder.id,item.id)};
+  attachItemLongPress(card,source);
   return card;
 }
+
+function attachItemLongPress(card,source){
+  let timer=null,dragging=false,startX=0,startY=0;
+  const context=source==="all"?"all":"folder";
+  const isCustom=()=>getSortState(context).mode==="custom";
+
+  const activate=()=>{
+    if(itemSelectionMode||!isCustom())return;
+    dragging=true;
+    suppressItemClick=true;
+    card.classList.add("dragging");
+    if(navigator.vibrate)navigator.vibrate(25);
+  };
+
+  const reorderAt=(x,y)=>{
+    const target=document.elementFromPoint(x,y)?.closest(".danmaku-card");
+    if(!target||target===card||target.parentElement!==card.parentElement)return;
+    if(source==="folder"&&target.dataset.folderId!==card.dataset.folderId)return;
+    const list=card.parentElement;
+    const rect=target.getBoundingClientRect();
+    if(y<rect.top+rect.height/2)list.insertBefore(card,target);
+    else list.insertBefore(card,target.nextSibling);
+  };
+
+  card.addEventListener("touchstart",e=>{
+    if(itemSelectionMode||e.target.closest("button"))return;
+    const t=e.touches[0];
+    startX=t.clientX;startY=t.clientY;
+    timer=setTimeout(activate,450);
+  },{passive:true});
+
+  card.addEventListener("touchmove",e=>{
+    const t=e.touches[0];if(!t)return;
+    if(!dragging){
+      if(Math.hypot(t.clientX-startX,t.clientY-startY)>8&&timer){clearTimeout(timer);timer=null}
+      return;
+    }
+    e.preventDefault();
+    reorderAt(t.clientX,t.clientY);
+  },{passive:false});
+
+  const end=()=>{
+    if(timer){clearTimeout(timer);timer=null}
+    if(!dragging)return;
+    dragging=false;
+    card.classList.remove("dragging");
+
+    if(source==="folder"){
+      const folder=getCurrentFolder();
+      if(folder){
+        let ids=[...document.querySelectorAll("#danmakuList .danmaku-card")].map(x=>x.dataset.itemId);
+        if(getSortState("folder").dir==="desc")ids=ids.reverse();
+        data.ui.folderItemCustomOrders[currentFolderId]=mergeOrder(ids,folder.items.map(i=>i.id));
+        saveData();
+        renderDanmaku();
+      }
+    }else{
+      let keys=[...document.querySelectorAll("#allDanmakuList .danmaku-card")].map(x=>x.dataset.itemKey);
+      if(getSortState("all").dir==="desc")keys=keys.reverse();
+      data.ui.allCustomOrder=mergeOrder(keys,allItemKeys());
+      saveData();
+      renderAllDanmaku();
+    }
+
+    setTimeout(()=>{suppressItemClick=false},300);
+  };
+
+  card.addEventListener("touchend",end);
+  card.addEventListener("touchcancel",end);
+  card.addEventListener("contextmenu",e=>e.preventDefault());
+}
+
 function matchesSearch(item,q){if(!q)return true;const display=stripSupportedTags(item.text).toLowerCase();return item.text.toLowerCase().includes(q)||display.includes(q)||(item.reading||"").toLowerCase().includes(q)}
-function newDanmaku(){const folder=getCurrentFolder();if(!folder)return;const item={id:makeId(),text:"",reading:"",createdAt:Date.now()};folder.items.push(item);currentDanmakuId=item.id;saveData();openEditor(item)}
+function newDanmaku(){const folder=getCurrentFolder();if(!folder)return;const item={id:makeId(),text:"",reading:"",createdAt:Date.now()};folder.items.push(item);ensureSortOrders();currentDanmakuId=item.id;saveData();openEditor(item)}
 function openItemFromAnywhere(folderId,itemId){currentFolderId=folderId;const ref=findItem(folderId,itemId);if(!ref)return;document.getElementById("currentFolderName").textContent=ref.folder.name;currentDanmakuId=itemId;data.ui.lastView="folder";data.ui.lastFolderId=folderId;saveData();openEditor(ref.item)}
 function editDanmaku(id){const f=getCurrentFolder();if(!f)return;const item=f.items.find(i=>i.id===id);if(item){currentDanmakuId=id;openEditor(item)}}
 function openEditor(item){document.getElementById("editor").value=item.text;updatePreview();updateReadingView();showScreen("editScreen");setEditMode("edit");setTimeout(()=>document.getElementById("editor").focus(),100)}
@@ -567,36 +845,42 @@ function renderCurrentLists(){if(currentFolderId)renderDanmaku();renderAllDanmak
 
 function refreshFolderFilter(){const sel=document.getElementById("folderFilter");if(!sel)return;const old=sel.value||"all";sel.innerHTML='<option value="all">すべてのフォルダ</option>'+data.folders.map(f=>`<option value="${f.id}"></option>`).join("");[...sel.options].slice(1).forEach((o,i)=>o.textContent=data.folders[i].name);sel.value=[...sel.options].some(o=>o.value===old)?old:"all"}
 function openAllMenu(){openSheet("allMenu")}
-function openSortMenu(){openSheet("sortMenu")}
-function setAllSort(mode){allSort=mode;saveUi();closeSheet("sortMenu");renderAllDanmaku()}
-function sortLabel(){return{name:"名前順",new:"新しい順",old:"古い順",folder:"フォルダ順",manual:"登録順"}[allSort]||"名前順"}
 function renderAllDanmaku(){
   const container=document.getElementById("allDanmakuList");if(!container)return;
-  document.getElementById("sortButton").textContent=sortLabel();
-  const q=document.getElementById("allSearch")?.value.trim().toLowerCase()||"";const filter=document.getElementById("folderFilter")?.value||"all";
-  let rows=[];data.folders.forEach((folder,fi)=>folder.items.forEach((item,ii)=>{if((filter==="all"||filter===folder.id)&&matchesSearch(item,q))rows.push({folder,item,fi,ii})}));
-  rows.sort((a,b)=>compareRows(a,b));container.innerHTML="";
+  updateSortControls();
+  const q=document.getElementById("allSearch")?.value.trim().toLowerCase()||"";
+  const filter=document.getElementById("folderFilter")?.value||"all";
+  ensureSortOrders();
+
+  let rows=[];
+  data.folders.forEach((folder,fi)=>folder.items.forEach((item,ii)=>{
+    if((filter==="all"||filter===folder.id)&&matchesSearch(item,q))rows.push({folder,item,fi,ii,key:keyFor(folder.id,item.id)});
+  }));
+
+  const state=data.ui.allSort;
+  const customIndex=new Map(data.ui.allCustomOrder.map((k,i)=>[k,i]));
+  const folderIndex=new Map(data.ui.folderCustomOrder.map((id,i)=>[id,i]));
+
+  rows.sort((a,b)=>{
+    let v=0;
+    if(state.mode==="reading"){
+      v=compareReadingItems(a.item,b.item);
+      if(!v)v=(a.item.createdAt||0)-(b.item.createdAt||0);
+    }else if(state.mode==="registered"){
+      v=(a.item.createdAt||0)-(b.item.createdAt||0);
+    }else if(state.mode==="folder"){
+      v=(folderIndex.get(a.folder.id)??1e9)-(folderIndex.get(b.folder.id)??1e9);
+      if(!v)v=itemCanonicalIndex(a.folder.id,a.item.id)-itemCanonicalIndex(b.folder.id,b.item.id);
+    }else{
+      v=(customIndex.get(a.key)??1e9)-(customIndex.get(b.key)??1e9);
+    }
+    return state.dir==="desc"?-v:v;
+  });
+
+  container.innerHTML="";
   if(!rows.length){container.innerHTML='<div class="empty">表示できる弾幕がありません。</div>';return}
   rows.forEach(r=>container.appendChild(createDanmakuCard(r.folder,r.item,"all")));
 }
-function compareRows(a,b){
-  if(allSort==="new")return(b.item.createdAt||0)-(a.item.createdAt||0);
-  if(allSort==="old")return(a.item.createdAt||0)-(b.item.createdAt||0);
-  if(allSort==="folder")return a.fi-b.fi||a.ii-b.ii;
-  if(allSort==="manual")return a.fi-b.fi||a.ii-b.ii;
-  const ka=getNameSortKey(a.item),kb=getNameSortKey(b.item);if(ka.group!==kb.group)return ka.group-kb.group;return ka.key.localeCompare(kb.key,"ja",{numeric:true,sensitivity:"base"})||a.fi-b.fi||a.ii-b.ii;
-}
-const KAOMOJI_NOISE=new Set(["ノ","ﾉ","ヾ","ヽ","ツ","シ"]);
-function getNameSortKey(item){
-  const reading=(item.reading||"").trim();if(reading)return{group:0,key:reading.normalize("NFKC")};
-  const visible=stripSupportedTags(item.text).replace(/\\ua/g," ").trim();
-  const tokens=visible.match(/[A-Za-z0-9ぁ-んァ-ヶ一-龯々ー]+/g)||[];
-  if(!tokens.length)return{group:1,key:visible.normalize("NFKC")};
-  const joined=tokens.join(" ").trim();
-  if(tokens.length===1){const t=tokens[0];if((t.length===1&&/[A-Za-z]/.test(t))||KAOMOJI_NOISE.has(t))return{group:1,key:visible.normalize("NFKC")}}
-  return{group:0,key:joined.normalize("NFKC")};
-}
-function stripSupportedTags(text){return String(text||"").replace(/<color=#[0-9a-fA-F]{3,8}>/gi,"").replace(/<\/color>/gi,"").replace(/<size=\d+(?:\.\d+)?>/gi,"").replace(/<\/size>/gi,"").replace(/<i>/gi,"").replace(/<\/i>/gi,"")}
 
 function escapeHTML(text){return String(text).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
 function validColor(color){return/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(color)}
@@ -622,9 +906,9 @@ function removeBackgroundImage(){previewBackgroundImage="";document.getElementBy
 function applyBackground(){const p=document.getElementById("previewMode");if(!p)return;p.style.backgroundColor=previewBackgroundColor;p.style.backgroundImage=previewBackgroundImage?`url("${previewBackgroundImage}")`:"none";p.style.backgroundSize="100% 100%";p.style.backgroundPosition="center";p.style.backgroundRepeat="no-repeat"}
 
 function openFolderPicker(title,callback){pickerCallback=callback;document.getElementById("folderPickerTitle").textContent=title;const box=document.getElementById("folderPickerButtons");box.innerHTML="";data.folders.forEach(f=>{const b=document.createElement("button");b.className="sheet-button";b.textContent=f.name;b.onclick=()=>{const cb=pickerCallback;pickerCallback=null;closeSheet("folderPicker");cb?.(f.id)};box.appendChild(b)});openSheet("folderPicker")}
-function createFolderFromPicker(){const name=prompt("新しいフォルダ名");if(!name||!name.trim())return;const f={id:makeId(),name:name.trim(),items:[]};data.folders.push(f);saveData();refreshFolderFilter();renderFolders();const cb=pickerCallback;pickerCallback=null;closeSheet("folderPicker");cb?.(f.id)}
+function createFolderFromPicker(){const name=prompt("新しいフォルダ名");if(!name||!name.trim())return;const f={id:makeId(),name:name.trim(),items:[],createdAt:Date.now()};data.folders.push(f);ensureSortOrders();saveData();refreshFolderFilter();renderFolders();const cb=pickerCallback;pickerCallback=null;closeSheet("folderPicker");cb?.(f.id)}
 
-function cloneFolders(folders){return folders.map(f=>({name:f.name,items:f.items.map(i=>({text:i.text,reading:i.reading||"",createdAt:i.createdAt||Date.now()}))}))}
+function cloneFolders(folders){return folders.map(f=>({name:f.name,createdAt:f.createdAt||Date.now(),items:f.items.map(i=>({text:i.text,reading:i.reading||"",createdAt:i.createdAt||Date.now()}))}))}
 function backupPayload(){return{app:"topia-danmaku-memo",version:2,type:"backup",exportedAt:new Date().toISOString(),folders:cloneFolders(data.folders)}}
 function exportAllBackup(){sharePayload(backupPayload(),"topia-danmaku-backup.json")}
 function shareFolderById(id){const f=data.folders.find(x=>x.id===id);if(!f)return;sharePayload({app:"topia-danmaku-memo",version:2,type:"folders",folders:cloneFolders([f])},safeFileName(f.name)+".json")}
@@ -646,7 +930,7 @@ function handleImportedPayload(p){
   showToast("対応していないデータです");
 }
 function inflateFolders(fs){return fs.map(inflateFolder)}
-function inflateFolder(f){return{id:makeId(),name:uniqueFolderName(f.name||"共有フォルダ"),items:Array.isArray(f.items)?f.items.map(inflateItem):[]}}
+function inflateFolder(f){return{id:makeId(),name:uniqueFolderName(f.name||"共有フォルダ"),items:Array.isArray(f.items)?f.items.map(inflateItem):[],createdAt:Number(f?.createdAt)||Date.now()}}
 function inflateItem(i){return{id:makeId(),text:String(i?.text||""),reading:String(i?.reading||""),createdAt:Number(i?.createdAt)||Date.now()}}
 
 function renderSettings(){const folderCount=data.folders.length,itemCount=data.folders.reduce((n,f)=>n+f.items.length,0);document.getElementById("dataSummary").textContent=`フォルダ ${folderCount}個・弾幕 ${itemCount}件`}
@@ -656,7 +940,7 @@ function closeSheet(id){document.getElementById(id).classList.remove("show")}
 function showToast(message){const t=document.getElementById("toast");t.textContent=message;t.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove("show"),1400)}
 
 function startup(){
-  refreshFolderFilter();renderFolders();renderSettings();renderAllDanmaku();applyBackground();
+  ensureSortOrders();refreshFolderFilter();renderFolders();renderSettings();renderAllDanmaku();updateSortControls();applyBackground();
   const last=data.ui?.lastView;
   if(last==="folder"&&data.ui.lastFolderId&&data.folders.some(f=>f.id===data.ui.lastFolderId)){openFolder(data.ui.lastFolderId,false)}
   else if(last==="all")showAll();else if(last==="settings")showSettings();else showFolders();
