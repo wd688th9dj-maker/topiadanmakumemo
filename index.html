@@ -91,8 +91,18 @@ body.detail-open .bottom-nav{display:none}
 
 /* preview */
 #previewMode{position:relative;width:100%;aspect-ratio:9/19.5;margin:0 auto;background-color:#000;background-size:100% 100%;background-position:center;background-repeat:no-repeat;border-radius:12px;overflow:hidden}
-.preview{position:fixed;left:40px;bottom:300px;width:fit-content;max-width:calc(100% - 28px);min-height:0;margin:0;padding:6px 10px;border:0;border-radius:14px;background:rgba(24,24,24,.56);color:#fff;font-size:14px;line-height:1.28;white-space:pre-wrap;overflow-wrap:anywhere;z-index:100}
+.preview{position:fixed;left:40px;bottom:120px;width:fit-content;max-width:calc(100% - 28px);min-height:0;margin:0;padding:6px 10px;border:0;border-radius:14px;background:rgba(24,24,24,.56);color:#fff;font-size:14px;line-height:1.28;white-space:pre-wrap;overflow-wrap:anywhere;z-index:100}
 .preview-bg-button{position:absolute;top:12px;right:12px;z-index:101;border:0;border-radius:12px;padding:9px 13px;background:rgba(0,0,0,.58);color:#fff;font-size:14px}
+
+/* multi preview */
+.multi-preview-wrap{position:relative;width:100%;aspect-ratio:9/19.5;margin:0 auto;border-radius:12px;overflow:hidden;background-size:100% 100%;background-position:center;background-repeat:no-repeat}
+.multi-preview-list{position:absolute;left:40px;right:10px;bottom:120px;display:flex;flex-direction:column;align-items:flex-start;gap:7px;z-index:2}
+.multi-preview-item{position:relative;width:fit-content;max-width:100%;padding:6px 34px 6px 10px;border-radius:14px;background:rgba(24,24,24,.56);color:#fff;font-size:14px;line-height:1.28;white-space:pre-wrap;overflow-wrap:anywhere;touch-action:pan-y;user-select:none}
+.multi-preview-item.dragging{opacity:.45}
+.multi-preview-remove{position:absolute;right:5px;top:50%;transform:translateY(-50%);border:0;background:none;color:#ddd;font-size:18px;padding:5px}
+.preview-toolbar{display:flex;gap:8px;margin-bottom:10px}
+.preview-toolbar button{flex:1;border:1px solid var(--border);border-radius:11px;background:var(--panel2);color:#fff;padding:11px}
+.preview-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:#aaa;padding:30px;pointer-events:none}
 
 /* settings */
 .settings-card{border:1px solid #292929;border-radius:15px;background:var(--panel);padding:15px;margin-bottom:10px}
@@ -187,6 +197,25 @@ body.detail-open .selection-bar{bottom:0}
   </main>
 </section>
 
+<!-- MULTI PREVIEW -->
+<section id="multiPreviewScreen" class="screen">
+  <header class="header">
+    <div class="header-space"></div>
+    <div class="header-title">プレビュー</div>
+    <button class="header-button" onclick="openBackgroundMenu()">背景</button>
+  </header>
+  <main class="content">
+    <div class="preview-toolbar">
+      <button onclick="clearMultiPreview()">すべて外す</button>
+    </div>
+    <div id="multiPreviewWrap" class="multi-preview-wrap">
+      <div id="multiPreviewEmpty" class="preview-empty">弾幕一覧やフォルダ内で弾幕を選択して<br>「プレビューに追加」してください</div>
+      <div id="multiPreviewList" class="multi-preview-list"></div>
+    </div>
+    <div class="hint">長押ししてドラッグで表示順を並べ替えできます。弾幕をタップすると編集できます。</div>
+  </main>
+</section>
+
 <!-- SETTINGS -->
 <section id="settingsScreen" class="screen">
   <header class="header">
@@ -203,7 +232,7 @@ body.detail-open .selection-bar{bottom:0}
     </div>
     <div class="settings-card">
       <div class="settings-title">プレビュー背景</div>
-      <div class="settings-sub">背景色と写真は一時表示です。アプリを開き直すとリセットされ、バックアップにも含まれません。</div>
+      <div class="settings-sub">背景はこの端末に保持されます。背景色を選ぶと色が優先されます。背景設定はバックアップには含まれません。</div>
     </div>
     <div class="settings-card">
       <div class="settings-title">並び替え</div>
@@ -239,6 +268,7 @@ body.detail-open .selection-bar{bottom:0}
 <nav id="bottomNav" class="bottom-nav">
   <button id="navFolders" class="nav-btn" onclick="showFolders()"><span class="nav-icon">▱</span><span>フォルダ</span></button>
   <button id="navAll" class="nav-btn" onclick="showAll()"><span class="nav-icon">≡</span><span>弾幕一覧</span></button>
+  <button id="navPreview" class="nav-btn" onclick="showMultiPreview()"><span class="nav-icon">◫</span><span>プレビュー</span></button>
   <button id="navSettings" class="nav-btn" onclick="showSettings()"><span class="nav-icon">⚙︎</span><span>設定</span></button>
 </nav>
 
@@ -249,6 +279,7 @@ body.detail-open .selection-bar{bottom:0}
   <button class="selection-action danger" onclick="deleteSelectedFolders()">削除</button>
 </div>
 <div id="itemSelectionBar" class="selection-bar">
+  <button class="selection-action" onclick="addSelectedToPreview()">プレビュー</button>
   <button class="selection-action" onclick="moveSelectedItems()">移動</button>
   <button class="selection-action" onclick="copySelectedItems()">複製</button>
   <button class="selection-action" onclick="shareSelectedItems()">共有</button>
@@ -283,6 +314,7 @@ body.detail-open .selection-bar{bottom:0}
 
 <div id="itemMenu" class="sheet" onclick="closeSheet('itemMenu')"><div class="sheet-panel" onclick="event.stopPropagation()">
   <div class="sheet-title">弾幕</div>
+  <button class="sheet-button accent" onclick="addMenuItemToPreview()">プレビューに追加</button>
   <button class="sheet-button" onclick="copyMenuItem()">コピー</button>
   <button class="sheet-button" onclick="setReadingForMenuItem()">よみを設定</button>
   <button class="sheet-button" onclick="moveMenuItem()">別フォルダへ移動</button>
@@ -332,6 +364,9 @@ body.detail-open .selection-bar{bottom:0}
     <input id="backgroundImage" type="file" accept="image/*" hidden onchange="imageChanged(event)">
     <button class="sheet-button danger" onclick="removeBackgroundImage()">写真を削除</button>
   </div>
+  <div class="sheet-section">
+    <button class="sheet-button" onclick="resetBackground()">初期背景に戻す</button>
+  </div>
 </div></div>
 
 <div id="toast" class="toast">コピーしました</div>
@@ -352,8 +387,13 @@ let itemSelectionMode=false;
 let itemSelectionSource="folder";
 let selectedItemKeys=new Set();
 let pickerCallback=null;
+const DEFAULT_BACKGROUND_IMAGE="無題507_20260824094304.png";
+const BACKGROUND_STORAGE_KEY="danmakuMemoPreviewBackground_v1";
+const MULTI_PREVIEW_STORAGE_KEY="danmakuMemoMultiPreview_v1";
 let previewBackgroundColor="#000000";
 let previewBackgroundImage="";
+let previewBackgroundMode="default";
+let multiPreviewKeys=[];
 let toastTimer;
 let suppressFolderClick=false;
 let suppressItemClick=false;
@@ -604,10 +644,12 @@ function showScreen(id){
   document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
   if(id==="foldersScreen")document.getElementById("navFolders").classList.add("active");
   if(id==="allScreen")document.getElementById("navAll").classList.add("active");
+  if(id==="multiPreviewScreen")document.getElementById("navPreview").classList.add("active");
   if(id==="settingsScreen")document.getElementById("navSettings").classList.add("active");
 }
 function showFolders(){cancelSelections();currentMainView="folders";data.ui.lastView="folders";saveData();renderFolders();updateSortControls();showScreen("foldersScreen")}
 function showAll(){cancelSelections();currentMainView="all";data.ui.lastView="all";saveData();refreshFolderFilter();renderAllDanmaku();updateSortControls();showScreen("allScreen")}
+function showMultiPreview(){cancelSelections();currentMainView="preview";data.ui.lastView="preview";saveData();renderMultiPreview();applyBackground();showScreen("multiPreviewScreen")}
 function showSettings(){cancelSelections();currentMainView="settings";data.ui.lastView="settings";saveData();renderSettings();showScreen("settingsScreen")}
 function openFolder(id,remember=true){
   cancelSelections();
@@ -817,6 +859,7 @@ function closeEditor(){const folder=getCurrentFolder();if(folder){folder.items=f
 function deleteCurrent(){const ref=findItem(currentFolderId,currentDanmakuId);if(!ref)return;if(!confirm("この弾幕を削除しますか？"))return;ref.folder.items=ref.folder.items.filter(i=>i.id!==currentDanmakuId);saveData();currentDanmakuId=null;closeSheet("editMenu");renderDanmaku();showScreen("listScreen")}
 
 function openItemMenu(folderId,itemId){currentItemMenuRef={folderId,itemId};openSheet("itemMenu")}
+function addMenuItemToPreview(){const r=currentItemMenuRef;closeSheet("itemMenu");if(!r)return;addKeysToPreview([keyFor(r.folderId,r.itemId)])}
 function copyMenuItem(){const r=findItem(currentItemMenuRef.folderId,currentItemMenuRef.itemId);closeSheet("itemMenu");if(r)copyText(r.item.text)}
 function setReadingForMenuItem(){const ref=currentItemMenuRef;closeSheet("itemMenu");setReading(ref.folderId,ref.itemId)}
 function moveMenuItem(){const ref=currentItemMenuRef;closeSheet("itemMenu");openFolderPicker("移動先",target=>moveItem(ref.folderId,ref.itemId,target))}
@@ -836,6 +879,7 @@ function startItemSelection(source){itemSelectionMode=true;itemSelectionSource=s
 function toggleItemSelection(folderId,itemId){const key=keyFor(folderId,itemId);selectedItemKeys.has(key)?selectedItemKeys.delete(key):selectedItemKeys.add(key);renderCurrentLists()}
 function cancelItemSelection(){itemSelectionMode=false;selectedItemKeys.clear();document.getElementById("itemSelectionBar").classList.remove("show");renderCurrentLists()}
 function selectedRefs(){return[...selectedItemKeys].map(k=>{const [f,i]=splitKey(k);return findItem(f,i)}).filter(Boolean)}
+function addSelectedToPreview(){if(!selectedItemKeys.size)return showToast("弾幕を選択してください");addKeysToPreview([...selectedItemKeys]);cancelItemSelection();showMultiPreview()}
 function moveSelectedItems(){if(!selectedItemKeys.size)return showToast("弾幕を選択してください");openFolderPicker("移動先",target=>{selectedRefs().forEach(ref=>{if(ref.folder.id!==target){ref.folder.items=ref.folder.items.filter(i=>i.id!==ref.item.id);data.folders.find(f=>f.id===target)?.items.push(ref.item)}});saveData();cancelItemSelection();showToast("移動しました")})}
 function copySelectedItems(){if(!selectedItemKeys.size)return showToast("弾幕を選択してください");openFolderPicker("複製先",target=>{const to=data.folders.find(f=>f.id===target);if(!to)return;selectedRefs().forEach(ref=>to.items.push({...ref.item,id:makeId(),createdAt:Date.now()+Math.random()}));saveData();cancelItemSelection();showToast("複製しました")})}
 function shareSelectedItems(){const refs=selectedRefs();if(!refs.length)return;sharePayload({type:"items",items:refs.map(r=>({folderName:r.folder.name,item:{...r.item}}))},"topia-danmaku-set.json");cancelItemSelection()}
@@ -897,13 +941,16 @@ function setEditMode(mode){const e=document.getElementById("editMode"),p=documen
 function prepareCopy(text){return String(text).replace(/\\ua\r?\n/g,"\n").replace(/\r\n|\r|\n/g,"\\ua")}
 async function copyText(text){const out=prepareCopy(text);try{await navigator.clipboard.writeText(out);showToast("コピーしました")}catch(e){const ta=document.createElement("textarea");ta.value=out;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();showToast("コピーしました")}}
 
+function loadBackgroundState(){try{const v=JSON.parse(localStorage.getItem(BACKGROUND_STORAGE_KEY)||"null");if(v){previewBackgroundColor=v.color||"#000000";previewBackgroundImage=v.image||"";previewBackgroundMode=v.mode||"default"}}catch(_){}}
+function saveBackgroundState(){try{localStorage.setItem(BACKGROUND_STORAGE_KEY,JSON.stringify({color:previewBackgroundColor,image:previewBackgroundImage,mode:previewBackgroundMode}))}catch(_){showToast("背景画像を保存できませんでした")}}
 function openBackgroundMenu(){syncBackgroundControls();openSheet("backgroundMenu")}
 function syncBackgroundControls(){document.getElementById("backgroundCode").value=previewBackgroundColor;if(/^#[0-9a-fA-F]{6}$/.test(previewBackgroundColor))document.getElementById("backgroundPicker").value=previewBackgroundColor}
-function pickerChanged(){previewBackgroundColor=document.getElementById("backgroundPicker").value;document.getElementById("backgroundCode").value=previewBackgroundColor;applyBackground()}
-function codeChanged(){const c=document.getElementById("backgroundCode").value.trim();if(/^#[0-9a-fA-F]{6}$/.test(c)){previewBackgroundColor=c;document.getElementById("backgroundPicker").value=c;applyBackground()}}
-function imageChanged(event){const input=event.target,file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=e=>{const img=new Image();img.onload=()=>{const max=1500;let w=img.width,h=img.height;if(w>h&&w>max){h=Math.round(h*max/w);w=max}else if(h>=w&&h>max){w=Math.round(w*max/h);h=max}const canvas=document.createElement("canvas");canvas.width=w;canvas.height=h;canvas.getContext("2d").drawImage(img,0,0,w,h);previewBackgroundImage=canvas.toDataURL("image/jpeg",.82);applyBackground();closeSheet("backgroundMenu");input.value=""};img.onerror=()=>showToast("この写真は読み込めませんでした");img.src=e.target.result};reader.readAsDataURL(file)}
-function removeBackgroundImage(){previewBackgroundImage="";document.getElementById("backgroundImage").value="";applyBackground();closeSheet("backgroundMenu")}
-function applyBackground(){const p=document.getElementById("previewMode");if(!p)return;p.style.backgroundColor=previewBackgroundColor;p.style.backgroundImage=previewBackgroundImage?`url("${previewBackgroundImage}")`:"none";p.style.backgroundSize="100% 100%";p.style.backgroundPosition="center";p.style.backgroundRepeat="no-repeat"}
+function pickerChanged(){previewBackgroundColor=document.getElementById("backgroundPicker").value;previewBackgroundMode="color";document.getElementById("backgroundCode").value=previewBackgroundColor;saveBackgroundState();applyBackground()}
+function codeChanged(){const c=document.getElementById("backgroundCode").value.trim();if(/^#[0-9a-fA-F]{6}$/.test(c)){previewBackgroundColor=c;previewBackgroundMode="color";document.getElementById("backgroundPicker").value=c;saveBackgroundState();applyBackground()}}
+function imageChanged(event){const input=event.target,file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=e=>{const img=new Image();img.onload=()=>{const max=1200;let w=img.width,h=img.height;if(w>h&&w>max){h=Math.round(h*max/w);w=max}else if(h>=w&&h>max){w=Math.round(w*max/h);h=max}const canvas=document.createElement("canvas");canvas.width=w;canvas.height=h;canvas.getContext("2d").drawImage(img,0,0,w,h);previewBackgroundImage=canvas.toDataURL("image/jpeg",.72);previewBackgroundMode="image";saveBackgroundState();applyBackground();closeSheet("backgroundMenu");input.value=""};img.onerror=()=>showToast("この写真は読み込めませんでした");img.src=e.target.result};reader.readAsDataURL(file)}
+function removeBackgroundImage(){previewBackgroundImage="";document.getElementById("backgroundImage").value="";previewBackgroundMode="default";saveBackgroundState();applyBackground();closeSheet("backgroundMenu")}
+function resetBackground(){previewBackgroundColor="#000000";previewBackgroundImage="";previewBackgroundMode="default";localStorage.removeItem(BACKGROUND_STORAGE_KEY);syncBackgroundControls();applyBackground();closeSheet("backgroundMenu")}
+function applyBackground(){const targets=[document.getElementById("previewMode"),document.getElementById("multiPreviewWrap")].filter(Boolean);targets.forEach(p=>{p.style.backgroundColor=previewBackgroundMode==="color"?previewBackgroundColor:"#000";let image="";if(previewBackgroundMode==="image"&&previewBackgroundImage)image=previewBackgroundImage;else if(previewBackgroundMode==="default")image=DEFAULT_BACKGROUND_IMAGE;p.style.backgroundImage=image?`url("${image}")`:"none";p.style.backgroundSize="100% 100%";p.style.backgroundPosition="center";p.style.backgroundRepeat="no-repeat"})}
 
 function openFolderPicker(title,callback){pickerCallback=callback;document.getElementById("folderPickerTitle").textContent=title;const box=document.getElementById("folderPickerButtons");box.innerHTML="";data.folders.forEach(f=>{const b=document.createElement("button");b.className="sheet-button";b.textContent=f.name;b.onclick=()=>{const cb=pickerCallback;pickerCallback=null;closeSheet("folderPicker");cb?.(f.id)};box.appendChild(b)});openSheet("folderPicker")}
 function createFolderFromPicker(){const name=prompt("新しいフォルダ名");if(!name||!name.trim())return;const f={id:makeId(),name:name.trim(),items:[],createdAt:Date.now()};data.folders.push(f);ensureSortOrders();saveData();refreshFolderFilter();renderFolders();const cb=pickerCallback;pickerCallback=null;closeSheet("folderPicker");cb?.(f.id)}
@@ -933,6 +980,16 @@ function inflateFolders(fs){return fs.map(inflateFolder)}
 function inflateFolder(f){return{id:makeId(),name:uniqueFolderName(f.name||"共有フォルダ"),items:Array.isArray(f.items)?f.items.map(inflateItem):[],createdAt:Number(f?.createdAt)||Date.now()}}
 function inflateItem(i){return{id:makeId(),text:String(i?.text||""),reading:String(i?.reading||""),createdAt:Number(i?.createdAt)||Date.now()}}
 
+function loadMultiPreview(){try{const v=JSON.parse(localStorage.getItem(MULTI_PREVIEW_STORAGE_KEY)||"[]");multiPreviewKeys=Array.isArray(v)?v:[]}catch(_){multiPreviewKeys=[]}pruneMultiPreview()}
+function saveMultiPreview(){localStorage.setItem(MULTI_PREVIEW_STORAGE_KEY,JSON.stringify(multiPreviewKeys))}
+function pruneMultiPreview(){const valid=new Set(allItemKeys());multiPreviewKeys=multiPreviewKeys.filter((k,i,a)=>valid.has(k)&&a.indexOf(k)===i);saveMultiPreview()}
+function addKeysToPreview(keys){pruneMultiPreview();keys.forEach(k=>{if(!multiPreviewKeys.includes(k)&&findByKey(k))multiPreviewKeys.push(k)});saveMultiPreview();renderMultiPreview();showToast("プレビューに追加しました")}
+function findByKey(key){const [folderId,itemId]=splitKey(key);return findItem(folderId,itemId)}
+function removeFromMultiPreview(key){multiPreviewKeys=multiPreviewKeys.filter(k=>k!==key);saveMultiPreview();renderMultiPreview()}
+function clearMultiPreview(){if(!multiPreviewKeys.length)return;multiPreviewKeys=[];saveMultiPreview();renderMultiPreview()}
+function renderMultiPreview(){pruneMultiPreview();const list=document.getElementById("multiPreviewList"),empty=document.getElementById("multiPreviewEmpty");if(!list)return;list.innerHTML="";empty.style.display=multiPreviewKeys.length?"none":"flex";multiPreviewKeys.forEach(key=>{const ref=findByKey(key);if(!ref)return;const el=document.createElement("div");el.className="multi-preview-item";el.dataset.key=key;el.innerHTML=`<div class="multi-preview-text">${parseDanmaku(ref.item.text)}</div><button class="multi-preview-remove" aria-label="外す">×</button>`;el.querySelector(".multi-preview-remove").onclick=e=>{e.stopPropagation();removeFromMultiPreview(key)};el.onclick=()=>openItemFromAnywhere(ref.folder.id,ref.item.id);attachMultiPreviewDrag(el);list.appendChild(el)});applyBackground()}
+function attachMultiPreviewDrag(el){let timer=null,dragging=false;const start=()=>{timer=setTimeout(()=>{dragging=true;el.classList.add("dragging")},380)};const cancel=()=>{clearTimeout(timer);timer=null};el.addEventListener("pointerdown",start);el.addEventListener("pointermove",e=>{if(!dragging)return;e.preventDefault();const list=document.getElementById("multiPreviewList");const others=[...list.children].filter(x=>x!==el);const target=others.find(x=>e.clientY<x.getBoundingClientRect().top+x.offsetHeight/2);target?list.insertBefore(el,target):list.appendChild(el)});el.addEventListener("pointerup",()=>{cancel();if(dragging){dragging=false;el.classList.remove("dragging");multiPreviewKeys=[...document.getElementById("multiPreviewList").children].map(x=>x.dataset.key);saveMultiPreview();setTimeout(()=>{},0)}});el.addEventListener("pointercancel",()=>{cancel();dragging=false;el.classList.remove("dragging")})}
+
 function renderSettings(){const folderCount=data.folders.length,itemCount=data.folders.reduce((n,f)=>n+f.items.length,0);document.getElementById("dataSummary").textContent=`フォルダ ${folderCount}個・弾幕 ${itemCount}件`}
 function openEditMenu(){openSheet("editMenu")}
 function openSheet(id){document.getElementById(id).classList.add("show")}
@@ -940,10 +997,11 @@ function closeSheet(id){document.getElementById(id).classList.remove("show")}
 function showToast(message){const t=document.getElementById("toast");t.textContent=message;t.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove("show"),1400)}
 
 function startup(){
-  ensureSortOrders();refreshFolderFilter();renderFolders();renderSettings();renderAllDanmaku();updateSortControls();applyBackground();
+  loadBackgroundState();loadMultiPreview();
+  ensureSortOrders();refreshFolderFilter();renderFolders();renderSettings();renderAllDanmaku();renderMultiPreview();updateSortControls();applyBackground();
   const last=data.ui?.lastView;
   if(last==="folder"&&data.ui.lastFolderId&&data.folders.some(f=>f.id===data.ui.lastFolderId)){openFolder(data.ui.lastFolderId,false)}
-  else if(last==="all")showAll();else if(last==="settings")showSettings();else showFolders();
+  else if(last==="all")showAll();else if(last==="preview")showMultiPreview();else if(last==="settings")showSettings();else showFolders();
 }
 startup();
 </script>
