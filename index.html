@@ -640,9 +640,9 @@ function itemCanonicalIndex(folderId,itemId){
 function showScreen(id){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
-  document.body.classList.toggle("detail-open",id==="listScreen"||id==="editScreen");
+  document.body.classList.toggle("detail-open",id==="editScreen");
   document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
-  if(id==="foldersScreen")document.getElementById("navFolders").classList.add("active");
+  if(id==="foldersScreen"||id==="listScreen")document.getElementById("navFolders").classList.add("active");
   if(id==="allScreen")document.getElementById("navAll").classList.add("active");
   if(id==="multiPreviewScreen")document.getElementById("navPreview").classList.add("active");
   if(id==="settingsScreen")document.getElementById("navSettings").classList.add("active");
