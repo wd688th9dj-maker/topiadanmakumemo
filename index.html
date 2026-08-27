@@ -91,7 +91,7 @@ body.detail-open .bottom-nav{display:none}
 
 /* preview */
 #previewMode{position:relative;width:100%;aspect-ratio:9/19.5;margin:0 auto;background-color:#000;background-size:100% 100%;background-position:center;background-repeat:no-repeat;border-radius:12px;overflow:hidden}
-.preview{position:absolute;left:40px;bottom:120px;width:fit-content;max-width:calc(100% - 50px);min-height:0;margin:0;padding:6px 10px;border:0;border-radius:14px;background:rgba(24,24,24,.56);color:#fff;font-size:14px;line-height:1.28;white-space:pre-wrap;overflow-wrap:anywhere;z-index:100}
+.preview{position:fixed;left:40px;bottom:120px;width:fit-content;max-width:calc(100% - 28px);min-height:0;margin:0;padding:6px 10px;border:0;border-radius:14px;background:rgba(24,24,24,.56);color:#fff;font-size:14px;line-height:1.28;white-space:pre-wrap;overflow-wrap:anywhere;z-index:100}
 .preview-bg-button{position:absolute;top:12px;right:12px;z-index:101;border:0;border-radius:12px;padding:9px 13px;background:rgba(0,0,0,.58);color:#fff;font-size:14px}
 
 /* multi preview */
@@ -938,12 +938,6 @@ function validColor(color){
   return /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(color);
 }
 
-/*
-  入れ子対応版パーサー
-  例:
-  <size=40>大きい<size=20>ここだけ小さい</size>また大きい</size>
-  <color=#c1ab05>黄<size=20>小さい黄</size></color>
-*/
 function parseDanmaku(source){
   const input=String(source ?? "");
   const tokenRegex=/<(\/?)(color|size|i)(?:=([^>]+))?>/gi;
