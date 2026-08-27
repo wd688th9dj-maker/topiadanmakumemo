@@ -968,7 +968,7 @@ function parseDanmaku(source){
         const size=Number(rawValue);
         if(Number.isFinite(size)){
           const n=Math.max(1,Math.min(size,100));
-          out+=`<span style="font-size:${n*.75}px">`;
+          out+=`<span style="font-size:${n*.55}px">`;
           stack.push(tag);
         }else{
           out+=escapeHTML(match[0]);
