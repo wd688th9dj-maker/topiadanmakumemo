@@ -91,7 +91,7 @@ body.detail-open .bottom-nav{display:none}
 
 /* preview */
 #previewMode{position:relative;width:100%;aspect-ratio:9/19.5;margin:0 auto;background-color:#000;background-size:100% 100%;background-position:center;background-repeat:no-repeat;border-radius:12px;overflow:hidden}
-.preview{position:fixed;left:40px;bottom:120px;width:fit-content;max-width:calc(100% - 28px);min-height:0;margin:0;padding:6px 10px;border:0;border-radius:14px;background:rgba(24,24,24,.56);color:#fff;font-size:14px;line-height:1.28;white-space:pre-wrap;overflow-wrap:anywhere;z-index:100}
+.preview{position:absolute;left:40px;bottom:120px;width:fit-content;max-width:calc(100% - 50px);min-height:0;margin:0;padding:6px 10px;border:0;border-radius:14px;background:rgba(24,24,24,.56);color:#fff;font-size:14px;line-height:1.28;white-space:pre-wrap;overflow-wrap:anywhere;z-index:100}
 .preview-bg-button{position:absolute;top:12px;right:12px;z-index:101;border:0;border-radius:12px;padding:9px 13px;background:rgba(0,0,0,.58);color:#fff;font-size:14px}
 
 /* multi preview */
@@ -139,7 +139,6 @@ body.detail-open .selection-bar{bottom:0}
 </head>
 <body>
 
-<!-- FOLDERS -->
 <section id="foldersScreen" class="screen">
   <header class="header">
     <div class="header-space"></div>
@@ -157,7 +156,6 @@ body.detail-open .selection-bar{bottom:0}
   </main>
 </section>
 
-<!-- FOLDER DETAIL -->
 <section id="listScreen" class="screen">
   <header class="header">
     <button class="header-button" onclick="showFolders()">‹ フォルダ</button>
@@ -177,7 +175,6 @@ body.detail-open .selection-bar{bottom:0}
   </main>
 </section>
 
-<!-- ALL ITEMS -->
 <section id="allScreen" class="screen">
   <header class="header">
     <div class="header-space"></div>
@@ -197,7 +194,6 @@ body.detail-open .selection-bar{bottom:0}
   </main>
 </section>
 
-<!-- MULTI PREVIEW -->
 <section id="multiPreviewScreen" class="screen">
   <header class="header">
     <div class="header-space"></div>
@@ -216,7 +212,6 @@ body.detail-open .selection-bar{bottom:0}
   </main>
 </section>
 
-<!-- SETTINGS -->
 <section id="settingsScreen" class="screen">
   <header class="header">
     <div class="header-space"></div>
@@ -241,7 +236,6 @@ body.detail-open .selection-bar{bottom:0}
   </main>
 </section>
 
-<!-- EDITOR -->
 <section id="editScreen" class="screen">
   <header class="header">
     <button class="header-button" onclick="closeEditor()">‹ 戻る</button>
@@ -264,7 +258,6 @@ body.detail-open .selection-bar{bottom:0}
   </main>
 </section>
 
-<!-- BOTTOM NAV -->
 <nav id="bottomNav" class="bottom-nav">
   <button id="navFolders" class="nav-btn" onclick="showFolders()"><span class="nav-icon">▱</span><span>フォルダ</span></button>
   <button id="navAll" class="nav-btn" onclick="showAll()"><span class="nav-icon">≡</span><span>弾幕一覧</span></button>
@@ -272,7 +265,6 @@ body.detail-open .selection-bar{bottom:0}
   <button id="navSettings" class="nav-btn" onclick="showSettings()"><span class="nav-icon">⚙︎</span><span>設定</span></button>
 </nav>
 
-<!-- selection bars -->
 <div id="folderSelectionBar" class="selection-bar">
   <button class="selection-action" onclick="shareSelectedFolders()">共有</button>
   <button class="selection-action" onclick="duplicateSelectedFolders()">複製</button>
@@ -286,10 +278,8 @@ body.detail-open .selection-bar{bottom:0}
   <button class="selection-action danger" onclick="deleteSelectedItems()">削除</button>
 </div>
 
-<!-- hidden import -->
 <input id="importFile" type="file" accept="application/json,.json" hidden onchange="importDataFile(event)">
 
-<!-- generic sheets -->
 <div id="folderGlobalMenu" class="sheet" onclick="closeSheet('folderGlobalMenu')"><div class="sheet-panel" onclick="event.stopPropagation()">
   <div class="sheet-title">フォルダ</div>
   <button class="sheet-button accent" onclick="startFolderSelection();closeSheet('folderGlobalMenu')">選択</button>
@@ -603,6 +593,18 @@ function compareReadingItems(a,b){
   if(ka.group!==kb.group)return ka.group-kb.group;
   return ka.key.localeCompare(kb.key,"ja",{numeric:true,sensitivity:"base"});
 }
+function getNameSortKey(item){
+  const reading=(item.reading||"").trim();
+  if(reading)return{group:0,key:reading};
+  const stripped=stripSupportedTags(item.text).trim();
+  return{group:1,key:stripped};
+}
+function stripSupportedTags(text){
+  return String(text)
+    .replace(/<\/?(?:color|size)(?:=[^>]+)?>/gi,"")
+    .replace(/<\/?i>/gi,"")
+    .replace(/\\ua/g,"\n");
+}
 function orderedFolders(){
   ensureSortOrders();
   const state=data.ui.folderSort;
@@ -872,18 +874,18 @@ function copyCurrent(){const ref=findItem(currentFolderId,currentDanmakuId);if(r
 function moveCurrentItem(){closeSheet("editMenu");openFolderPicker("移動先",target=>{moveItem(currentFolderId,currentDanmakuId,target);currentFolderId=target;const r=findItem(target,currentDanmakuId);if(r){data.ui.lastFolderId=target;saveData();document.getElementById("currentFolderName").textContent=r.folder.name}})}
 function duplicateCurrentItem(){closeSheet("editMenu");openFolderPicker("複製先",target=>copyItem(currentFolderId,currentDanmakuId,target))}
 function shareCurrentItem(){const ref=findItem(currentFolderId,currentDanmakuId);closeSheet("editMenu");if(ref)sharePayload({type:"items",items:[{folderName:ref.folder.name,item:{...ref.item}}]},"topia-danmaku.json")}
-function moveItem(fromFolderId,itemId,targetFolderId){if(fromFolderId===targetFolderId)return;const from=data.folders.find(f=>f.id===fromFolderId),to=data.folders.find(f=>f.id===targetFolderId);if(!from||!to)return;const idx=from.items.findIndex(i=>i.id===itemId);if(idx<0)return;const [item]=from.items.splice(idx,1);to.items.push(item);saveData();renderCurrentLists();showToast("移動しました")}
-function copyItem(fromFolderId,itemId,targetFolderId){const ref=findItem(fromFolderId,itemId),to=data.folders.find(f=>f.id===targetFolderId);if(!ref||!to)return;to.items.push({...ref.item,id:makeId(),createdAt:Date.now()});saveData();renderCurrentLists();showToast("複製しました")}
+function moveItem(fromFolderId,itemId,targetFolderId){if(fromFolderId===targetFolderId)return;const from=data.folders.find(f=>f.id===fromFolderId),to=data.folders.find(f=>f.id===targetFolderId);if(!from||!to)return;const idx=from.items.findIndex(i=>i.id===itemId);if(idx<0)return;const [item]=from.items.splice(idx,1);to.items.push(item);ensureSortOrders();saveData();renderCurrentLists();showToast("移動しました")}
+function copyItem(fromFolderId,itemId,targetFolderId){const ref=findItem(fromFolderId,itemId),to=data.folders.find(f=>f.id===targetFolderId);if(!ref||!to)return;to.items.push({...ref.item,id:makeId(),createdAt:Date.now()});ensureSortOrders();saveData();renderCurrentLists();showToast("複製しました")}
 
 function startItemSelection(source){itemSelectionMode=true;itemSelectionSource=source;selectedItemKeys.clear();document.getElementById("itemSelectionBar").classList.add("show");renderCurrentLists()}
 function toggleItemSelection(folderId,itemId){const key=keyFor(folderId,itemId);selectedItemKeys.has(key)?selectedItemKeys.delete(key):selectedItemKeys.add(key);renderCurrentLists()}
 function cancelItemSelection(){itemSelectionMode=false;selectedItemKeys.clear();document.getElementById("itemSelectionBar").classList.remove("show");renderCurrentLists()}
 function selectedRefs(){return[...selectedItemKeys].map(k=>{const [f,i]=splitKey(k);return findItem(f,i)}).filter(Boolean)}
 function addSelectedToPreview(){if(!selectedItemKeys.size)return showToast("弾幕を選択してください");addKeysToPreview([...selectedItemKeys]);cancelItemSelection();showMultiPreview()}
-function moveSelectedItems(){if(!selectedItemKeys.size)return showToast("弾幕を選択してください");openFolderPicker("移動先",target=>{selectedRefs().forEach(ref=>{if(ref.folder.id!==target){ref.folder.items=ref.folder.items.filter(i=>i.id!==ref.item.id);data.folders.find(f=>f.id===target)?.items.push(ref.item)}});saveData();cancelItemSelection();showToast("移動しました")})}
-function copySelectedItems(){if(!selectedItemKeys.size)return showToast("弾幕を選択してください");openFolderPicker("複製先",target=>{const to=data.folders.find(f=>f.id===target);if(!to)return;selectedRefs().forEach(ref=>to.items.push({...ref.item,id:makeId(),createdAt:Date.now()+Math.random()}));saveData();cancelItemSelection();showToast("複製しました")})}
+function moveSelectedItems(){if(!selectedItemKeys.size)return showToast("弾幕を選択してください");openFolderPicker("移動先",target=>{selectedRefs().forEach(ref=>{if(ref.folder.id!==target){ref.folder.items=ref.folder.items.filter(i=>i.id!==ref.item.id);data.folders.find(f=>f.id===target)?.items.push(ref.item)}});ensureSortOrders();saveData();cancelItemSelection();showToast("移動しました")})}
+function copySelectedItems(){if(!selectedItemKeys.size)return showToast("弾幕を選択してください");openFolderPicker("複製先",target=>{const to=data.folders.find(f=>f.id===target);if(!to)return;selectedRefs().forEach(ref=>to.items.push({...ref.item,id:makeId(),createdAt:Date.now()+Math.random()}));ensureSortOrders();saveData();cancelItemSelection();showToast("複製しました")})}
 function shareSelectedItems(){const refs=selectedRefs();if(!refs.length)return;sharePayload({type:"items",items:refs.map(r=>({folderName:r.folder.name,item:{...r.item}}))},"topia-danmaku-set.json");cancelItemSelection()}
-function deleteSelectedItems(){if(!selectedItemKeys.size)return;if(!confirm(`${selectedItemKeys.size}件の弾幕を削除しますか？`))return;for(const key of selectedItemKeys){const [f,i]=splitKey(key);const folder=data.folders.find(x=>x.id===f);if(folder)folder.items=folder.items.filter(x=>x.id!==i)}saveData();cancelItemSelection()}
+function deleteSelectedItems(){if(!selectedItemKeys.size)return;if(!confirm(`${selectedItemKeys.size}件の弾幕を削除しますか？`))return;for(const key of selectedItemKeys){const [f,i]=splitKey(key);const folder=data.folders.find(x=>x.id===f);if(folder)folder.items=folder.items.filter(x=>x.id!==i)}ensureSortOrders();saveData();cancelItemSelection()}
 function cancelSelections(){if(folderSelectionMode)cancelFolderSelection();if(itemSelectionMode)cancelItemSelection()}
 function renderCurrentLists(){if(currentFolderId)renderDanmaku();renderAllDanmaku();renderFolders();renderSettings()}
 
@@ -926,15 +928,83 @@ function renderAllDanmaku(){
   rows.forEach(r=>container.appendChild(createDanmakuCard(r.folder,r.item,"all")));
 }
 
-function escapeHTML(text){return String(text).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
-function validColor(color){return/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(color)}
-function parseDanmaku(source){
-  let text=escapeHTML(source);
-  text=text.replace(/&lt;color=(#[0-9a-fA-F]{3,8})&gt;([\s\S]*?)&lt;\/color&gt;/gi,(m,c,content)=>validColor(c)?`<span style="color:${c}">${content}</span>`:content);
-  text=text.replace(/&lt;size=(\d+(?:\.\d+)?)&gt;([\s\S]*?)&lt;\/size&gt;/gi,(m,size,content)=>{const n=Math.max(1,Math.min(Number(size),100));return`<span style="font-size:${n*.75}px">${content}</span>`});
-  text=text.replace(/&lt;i&gt;([\s\S]*?)&lt;\/i&gt;/gi,"<i>$1</i>");
-  text=text.replace(/\\ua|\r\n|\r|\n/g,"<br>");return text;
+function escapeHTML(text){
+  return String(text)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;");
 }
+function validColor(color){
+  return /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(color);
+}
+
+/*
+  入れ子対応版パーサー
+  例:
+  <size=40>大きい<size=20>ここだけ小さい</size>また大きい</size>
+  <color=#c1ab05>黄<size=20>小さい黄</size></color>
+*/
+function parseDanmaku(source){
+  const input=String(source ?? "");
+  const tokenRegex=/<(\/?)(color|size|i)(?:=([^>]+))?>/gi;
+
+  let out="";
+  let lastIndex=0;
+  const stack=[];
+  let match;
+
+  const closeTagHtml=tag=>tag==="i" ? "</i>" : "</span>";
+
+  while((match=tokenRegex.exec(input))!==null){
+    out+=escapeHTML(input.slice(lastIndex,match.index));
+
+    const isClosing=match[1]==="/";
+    const tag=match[2].toLowerCase();
+    const rawValue=(match[3]??"").trim();
+
+    if(!isClosing){
+      if(tag==="color"){
+        if(validColor(rawValue)){
+          out+=`<span style="color:${rawValue}">`;
+          stack.push(tag);
+        }else{
+          out+=escapeHTML(match[0]);
+        }
+      }else if(tag==="size"){
+        const size=Number(rawValue);
+        if(Number.isFinite(size)){
+          const n=Math.max(1,Math.min(size,100));
+          out+=`<span style="font-size:${n*.75}px">`;
+          stack.push(tag);
+        }else{
+          out+=escapeHTML(match[0]);
+        }
+      }else if(tag==="i"){
+        out+="<i>";
+        stack.push(tag);
+      }
+    }else{
+      if(stack.length && stack[stack.length-1]===tag){
+        out+=closeTagHtml(tag);
+        stack.pop();
+      }else{
+        // 閉じ方が崩れているタグは、勝手にHTMLを壊さず文字として表示
+        out+=escapeHTML(match[0]);
+      }
+    }
+
+    lastIndex=tokenRegex.lastIndex;
+  }
+
+  out+=escapeHTML(input.slice(lastIndex));
+
+  while(stack.length){
+    out+=closeTagHtml(stack.pop());
+  }
+
+  return out.replace(/\\ua|\r\n|\r|\n/g,"<br>");
+}
+
 function updatePreview(){document.getElementById("preview").innerHTML=parseDanmaku(document.getElementById("editor").value)}
 function setEditMode(mode){const e=document.getElementById("editMode"),p=document.getElementById("previewMode"),eb=document.getElementById("editModeBtn"),pb=document.getElementById("previewModeBtn");if(mode==="edit"){e.style.display="block";p.style.display="none";eb.classList.add("active");pb.classList.remove("active")}else{e.style.display="none";p.style.display="block";applyBackground();eb.classList.remove("active");pb.classList.add("active")}}
 
@@ -966,13 +1036,13 @@ function handleImportedPayload(p){
   if(!p||!p.type)return showToast("対応していないデータです");
   if(p.type==="backup"&&Array.isArray(p.folders)){
     if(!confirm("現在のフォルダと弾幕を、このバックアップで置き換えますか？"))return;
-    data.folders=inflateFolders(p.folders);data.ui.lastView="folders";data.ui.lastFolderId=null;saveData();refreshFolderFilter();showFolders();showToast("復元しました");return;
+    data.folders=inflateFolders(p.folders);data.ui.lastView="folders";data.ui.lastFolderId=null;ensureSortOrders();saveData();refreshFolderFilter();showFolders();showToast("復元しました");return;
   }
   if((p.type==="folders"||p.type==="folder")&&Array.isArray(p.folders)){
-    p.folders.forEach(f=>data.folders.push(inflateFolder(f)));saveData();refreshFolderFilter();renderFolders();showToast("フォルダを追加しました");return;
+    p.folders.forEach(f=>data.folders.push(inflateFolder(f)));ensureSortOrders();saveData();refreshFolderFilter();renderFolders();showToast("フォルダを追加しました");return;
   }
   if(p.type==="items"&&Array.isArray(p.items)){
-    openFolderPicker("読み込み先",target=>{const folder=data.folders.find(f=>f.id===target);if(!folder)return;p.items.forEach(x=>folder.items.push(inflateItem(x.item||x)));saveData();renderCurrentLists();showToast("弾幕を追加しました")});return;
+    openFolderPicker("読み込み先",target=>{const folder=data.folders.find(f=>f.id===target);if(!folder)return;p.items.forEach(x=>folder.items.push(inflateItem(x.item||x)));ensureSortOrders();saveData();renderCurrentLists();showToast("弾幕を追加しました")});return;
   }
   showToast("対応していないデータです");
 }
@@ -988,7 +1058,7 @@ function findByKey(key){const [folderId,itemId]=splitKey(key);return findItem(fo
 function removeFromMultiPreview(key){multiPreviewKeys=multiPreviewKeys.filter(k=>k!==key);saveMultiPreview();renderMultiPreview()}
 function clearMultiPreview(){if(!multiPreviewKeys.length)return;multiPreviewKeys=[];saveMultiPreview();renderMultiPreview()}
 function renderMultiPreview(){pruneMultiPreview();const list=document.getElementById("multiPreviewList"),empty=document.getElementById("multiPreviewEmpty");if(!list)return;list.innerHTML="";empty.style.display=multiPreviewKeys.length?"none":"flex";multiPreviewKeys.forEach(key=>{const ref=findByKey(key);if(!ref)return;const el=document.createElement("div");el.className="multi-preview-item";el.dataset.key=key;el.innerHTML=`<div class="multi-preview-text">${parseDanmaku(ref.item.text)}</div><button class="multi-preview-remove" aria-label="外す">×</button>`;el.querySelector(".multi-preview-remove").onclick=e=>{e.stopPropagation();removeFromMultiPreview(key)};el.onclick=()=>openItemFromAnywhere(ref.folder.id,ref.item.id);attachMultiPreviewDrag(el);list.appendChild(el)});applyBackground()}
-function attachMultiPreviewDrag(el){let timer=null,dragging=false;const start=()=>{timer=setTimeout(()=>{dragging=true;el.classList.add("dragging")},380)};const cancel=()=>{clearTimeout(timer);timer=null};el.addEventListener("pointerdown",start);el.addEventListener("pointermove",e=>{if(!dragging)return;e.preventDefault();const list=document.getElementById("multiPreviewList");const others=[...list.children].filter(x=>x!==el);const target=others.find(x=>e.clientY<x.getBoundingClientRect().top+x.offsetHeight/2);target?list.insertBefore(el,target):list.appendChild(el)});el.addEventListener("pointerup",()=>{cancel();if(dragging){dragging=false;el.classList.remove("dragging");multiPreviewKeys=[...document.getElementById("multiPreviewList").children].map(x=>x.dataset.key);saveMultiPreview();setTimeout(()=>{},0)}});el.addEventListener("pointercancel",()=>{cancel();dragging=false;el.classList.remove("dragging")})}
+function attachMultiPreviewDrag(el){let timer=null,dragging=false;const start=()=>{timer=setTimeout(()=>{dragging=true;el.classList.add("dragging")},380)};const cancel=()=>{clearTimeout(timer);timer=null};el.addEventListener("pointerdown",start);el.addEventListener("pointermove",e=>{if(!dragging)return;e.preventDefault();const list=document.getElementById("multiPreviewList");const others=[...list.children].filter(x=>x!==el);const target=others.find(x=>e.clientY<x.getBoundingClientRect().top+x.offsetHeight/2);target?list.insertBefore(el,target):list.appendChild(el)});el.addEventListener("pointerup",()=>{cancel();if(dragging){dragging=false;el.classList.remove("dragging");multiPreviewKeys=[...document.getElementById("multiPreviewList").children].map(x=>x.dataset.key);saveMultiPreview()}});el.addEventListener("pointercancel",()=>{cancel();dragging=false;el.classList.remove("dragging")})}
 
 function renderSettings(){const folderCount=data.folders.length,itemCount=data.folders.reduce((n,f)=>n+f.items.length,0);document.getElementById("dataSummary").textContent=`フォルダ ${folderCount}個・弾幕 ${itemCount}件`}
 function openEditMenu(){openSheet("editMenu")}
